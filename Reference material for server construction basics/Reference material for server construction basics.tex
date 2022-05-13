@@ -1,0 +1,618 @@
+\documentclass[12pt,a4paper]{jsarticle}
+
+\usepackage{amsmath,amssymb}
+\usepackage[dvipdfmx]{graphicx}
+\usepackage{float}
+\usepackage{tikz}
+\usepackage{circuitikz}
+\usepackage{siunitx}
+\usepackage{at}
+\usepackage{comment}
+\usepackage[hang,small,bf]{caption}
+\usepackage{ascmac}
+\usepackage{fancybox}
+\usepackage[subrefformat=parens]{subcaption}
+
+\captionsetup{compatibility=false}
+
+\usetikzlibrary{intersections,calc,arrows.meta}
+
+\numberwithin{equation}{section}
+\numberwithin{figure}{section}
+\numberwithin{table}{section}
+
+\begin{document}
+\section{実験の目的}
+情報システムの構築（今回はWebサーバの構築）体験を通じて、システム構築に必要な以下の知識を深めことを目的とする。
+\begin{itemize}
+  \item コンピューターの基本構成と動作
+  \item オペレーティングシステム
+  \item ネットワーク
+  \item インターネットプロトコル
+\end{itemize}
+\section{実験実習の概要}
+  \subsection{実験手順}
+  今回の実験では２週にわけて実験を行った。以下に１週目と２週目の実験手順を示す。
+    \subsubsection{1週目}
+    \begin{itemize}
+      \item [(1)]機器を配線し、電源ケーブルを電源コンセントに挿したのちにモニタとマシンの電源を入れた。
+      \item [(2)]\quad
+      \begin{screen}
+        「No boot device available」
+      \end{screen}
+      というメッセージで停止を確認したのちに電源を再投入し、F2キーを押してBIOS Setupメニューを表示した。
+      \item [(3)]BIOS SetupメニューにてUEFIモードに変更したのちに、Boot ManagerからUSBメディアを選択して起動した。
+      \item [(4)]Cent OSのインストーラで言語設定、インストール先、rootアカウントの設定を行った。
+      \item [(5)]インストール終了後再起動し、Cent OSのログインプロンプトからrootアカウントでログインした。
+      \pagebreak
+      \item [(6)]\quad
+      \begin{screen}
+        \# nmtui
+      \end{screen}
+      を用いて以下の設定を行った。
+        \begin{itemize}
+          \item em1にIP:10.0.0.128/24を設定した。
+          \item em1のゲートウェイ(10.0.0.1)を設定した。
+          \item DNSサーバ(172.24.2.51)を設定した。
+          \item em2にIP:192.168.10.128/24を設定した。
+          \item デバイスem1とデバイスem2をActiveにした。
+        \end{itemize}
+      \item [(7)](6)を行った後に、デバイスem1をem1用L2スイッチに接続し、デバイスem2をem2用L2スイッチに接続した。
+      \item [(8)]\quad
+      \begin{screen}
+        \# ip addr show dev em1 \\
+        \# ip addr show dev em2
+      \end{screen}
+      でデバイスem1とem2のIPアドレスが正しく設定されていることを確認した。
+      \item [(9)]これらの設定を行った後に以下の疎通を確認した。\\
+          \begin{screen}ping 127.0.0.1\end{screen}
+          \begin{screen}ping 10.0.0.1xx (xxは表\ref{tab:IP_tab1}のem1のIPアドレスを確認した。)\end{screen}
+          \begin{screen}ping 192.168.10.1xx (xxは表\ref{tab:IP_tab1}のem2のIPアドレスを確認した。)\end{screen}
+          \begin{table}[H]
+            \caption{各種サーバのIPアドレス(1週目)}\label{tab:IP_tab1}
+            \begin{center}
+              \scalebox{1}{
+                \begin{tabular}{|c|c|c|}
+                  \hline
+                    webサーバ& em1（外部用）&em2（内部用）\\
+                  \hline
+                  1&10.0.0.107&192.168.10.107\\
+                  2&10.0.0.108&192.168.10.108\\
+                  3&10.0.0.128&192.168.10.128\\
+                  4&10.0.0.130&192.168.10.130\\
+                  5&10.0.0.132&192.168.10.132\\
+                  6&10.0.0.136&192.168.10.136\\
+                  7&10.0.0.137&192.168.10.137\\
+                  8&10.0.0.138&192.168.10.138\\
+                  9&10.0.0.139&192.168.10.139\\
+                  \hline
+                \end{tabular}
+            }
+            \end{center}
+            \end{table}
+      \item [(10)]yum.confファイルにおいてproxy設定がされていないことを確認後、
+      \begin{screen}
+        \# yum update 
+      \end{screen}
+      を行い、Cent OSのアップデートを行った。
+    \end{itemize}
+    \newpage
+    最後に、図\ref{fig:ネットワーク構成図１}に１週目で構築したネットワーク図を示す。また、この図では太線は「em1(外部用)」、細線を「em2(内部用)」とする。
+    \begin{figure}[H]
+      \begin{center}
+        \begin{circuitikz}
+          \draw (-5,0.5) circle [x radius=2,y radius=0.5,rotate=0] node {インターネット};
+          %円柱（ルーター）---------------------------------------------------------
+          \filldraw [fill=gray](-5,-1) circle [x radius=1,y radius=0.4,rotate=0];
+          \draw (-6,-1)--(-6,-1.7); 
+          \draw (-4,-1)--(-4,-1.7);
+          \draw (-6,-1.7) to [out=-30,in=-150] (-4,-1.7);
+          \draw [white,->,>=stealth,line width=2pt](-4.9,-0.95)--(-4.2,-0.85);
+          \draw [white,<-,>=stealth,line width=2pt](-4.9,-1.05)--(-4.2,-1.15);
+          \draw [white,<-,>=stealth,line width=2pt](-5,-0.95)--(-5.7,-0.85);
+          \draw [white,->,>=stealth,line width=2pt](-5,-1.05)--(-5.7,-1.15);
+          \draw (-6,-1.35)node [anchor=east]{ルータ};
+          \%-------------------------------------------------------------------------
+          \draw (-6.5,-2.3) rectangle (-3.5,-3.2); 
+          \draw (-5,-2.75) node [scale=0.8]{L2スイッチ(外部用)};
+          \%-------------------------------------------------------------------------
+          \draw (-6.5,-4.8) rectangle (-3.5,-5.7); 
+          \draw (-5,-5.25) node [scale=0.8]{L2スイッチ(内部用)};
+          %-------------------------------------------------------------------------
+          \draw[rounded corners=5mm] (-3,-1.5) rectangle (7.5,-6.5);
+          \draw (-2.8,-2) node[scale=1,anchor=west]{DMZ(非武装地帯)};
+          \draw[rounded corners=1mm] (6,-1.7) rectangle (7.2,-2.4);
+          \draw[rounded corners=1mm] (6,-5.5) rectangle (7.2,-6.2);
+          \draw(6.6,-2.05) node [scale=0.8]{em1};
+          \draw(6.6,-5.85) node [scale=0.8]{em2};
+          %-------------------------------------------------------------------------
+          \draw (-2.4,-3) rectangle (-1,-3.8);
+          \draw (-1.7,-3.4) node [scale=0.6]{webサーバ1};
+          \draw (-0.4,-3) rectangle (1,-3.8);
+          \draw (0.3,-3.4) node [scale=0.6]{webサーバ2};
+          \draw (1.6,-3) rectangle (3,-3.8);
+          \draw (2.3,-3.4) node [scale=0.6]{webサーバ3};
+          \draw (3.6,-3) rectangle (5,-3.8);
+          \draw (4.3,-3.4) node [scale=0.6]{webサーバ4};
+          \draw (5.6,-3) rectangle (7,-3.8);
+          \draw (6.3,-3.4) node [scale=0.6]{webサーバ5};
+          \draw (-1.4,-4) rectangle (0,-4.8);
+          \draw (-0.7,-4.4) node [scale=0.6]{webサーバ6};
+          \draw (0.6,-4) rectangle (2,-4.8);
+          \draw (1.3,-4.4) node [scale=0.6]{webサーバ7};
+          \draw (2.6,-4) rectangle (4,-4.8);
+          \draw (3.3,-4.4) node [scale=0.6]{webサーバ8};
+          \draw (4.6,-4) rectangle (6,-4.8);
+          \draw (5.3,-4.4) node [scale=0.6]{webサーバ9};
+          %-------------------------------------------------------------------------
+          \draw[ultra thick](-5,0)--(-5,-0.6);
+          \draw[ultra thick](-5,-2)--(-5,-2.3);
+          \draw[ultra thick](-3.5,-2.75)--(6.3,-2.75);
+          \draw[thick](-3.5,-5.25)--(6.3,-5.25);
+          %-------------------------------------------------------------------------
+          \draw[ultra thick](-1.7,-2.75)--(-1.7,-3);
+          \draw[ultra thick](0.3,-2.75)--(0.3,-3);
+          \draw[ultra thick](2.3,-2.75)--(2.3,-3);
+          \draw[ultra thick](4.3,-2.75)--(4.3,-3);
+          \draw[ultra thick](6.3,-2.75)--(6.3,-3);
+          \draw[thick](-1.7,-3.8)--(-1.7,-5.25);
+          \draw[thick](0.3,-3.8)--(0.3,-5.25);
+          \draw[thick](2.3,-3.8)--(2.3,-5.25);
+          \draw[thick](4.3,-3.8)--(4.3,-5.25);
+          \draw[thick](6.3,-3.8)--(6.3,-5.25);
+          %-------------------------------------------------------------------------
+          \draw[ultra thick](-0.7,-2.75)--(-0.7,-4);
+          \draw[ultra thick](1.3,-2.75)--(1.3,-4);
+          \draw[ultra thick](3.3,-2.75)--(3.3,-4);
+          \draw[ultra thick](5.3,-2.75)--(5.3,-4);
+          \draw[thick](-0.7,-4.8)--(-0.7,-5.25);
+          \draw[thick](1.3,-4.8)--(1.3,-5.25);
+          \draw[thick](3.3,-4.8)--(3.3,-5.25);
+          \draw[thick](5.3,-4.8)--(5.3,-5.25);
+          %--------------------------------------------------------------------------
+        \end{circuitikz}
+      \end{center}
+      \caption{ネットワーク構成図（1週目）}\label{fig:ネットワーク構成図１}
+    \end{figure}
+    \subsubsection{2週目}
+    \begin{itemize}
+      \item [(1)]\quad 
+      \begin{screen}
+        \# useradd [username]
+      \end{screen}
+      を用いて、Webサーバ側で新規のユーザーを作成した。
+      \item [(2)]\quad
+      \begin{screen}
+        \# passwd [password]
+      \end{screen}
+      を用いて、Webサーバ側で作成したユーザーのパスワードを設定した。
+      \item [(3)]次に、作成したユーザーとパスワードでログインできることを確認した。
+      \item [(4)]一般ユーザーで「yum update」と「sudo yum update」が実行できないことを確認し、
+      \begin{screen}
+        \# usermod -G wheel [username]
+      \end{screen}
+      を用いて、作成したユーザーをwheelグループに参加させることで、「sudo」を使えるようにした。
+      \item [(5)]\quad
+      \begin{screen}
+        \# systemctl status sshd.service
+      \end{screen}
+      上記のコマンドを実行し、sshサーバが起動しているかを確認した。
+      \item [(6)]Raspberry Piに周辺機器を接続し電源を投入して起動させたのちに、
+      \begin{screen}
+        \# sudo vi /etc/dhcpcd.conf\\
+        \verb|interface eth0|\\
+        \verb|static ip_address=192.168.10.228/24|
+      \end{screen}
+      vimコマンドでconfigファイルを書き換えて再起動した。
+      \begin{screen}
+        \# sudo reboot
+      \end{screen}
+      \item [(7)]再起動後、「Raspberry Pi」とWebサーバのem2側をLANケーブルで図\ref{fig:ネットワーク構成図２}のように接続し、
+      \begin{screen}
+        \# ip addr show dev eth0
+      \end{screen}
+      でデバイスeth0が正しく設定されていることを確認した。
+  \begin{figure}[H]
+    \begin{center}
+      \begin{circuitikz}
+        \draw (-5,0.5) circle [x radius=2,y radius=0.5,rotate=0] node {インターネット};
+        %円柱（ルーター）---------------------------------------------------------
+        \filldraw [fill=gray](-5,-1) circle [x radius=1,y radius=0.4,rotate=0];
+        \draw (-6,-1)--(-6,-1.7); 
+        \draw (-4,-1)--(-4,-1.7);
+        \draw (-6,-1.7) to [out=-30,in=-150] (-4,-1.7);
+        \draw [white,->,>=stealth,line width=2pt](-4.9,-0.95)--(-4.2,-0.85);
+        \draw [white,<-,>=stealth,line width=2pt](-4.9,-1.05)--(-4.2,-1.15);
+        \draw [white,<-,>=stealth,line width=2pt](-5,-0.95)--(-5.7,-0.85);
+        \draw [white,->,>=stealth,line width=2pt](-5,-1.05)--(-5.7,-1.15);
+        \draw (-6,-1.35)node [anchor=east]{ルータ};
+        %-------------------------------------------------------------------------
+        \draw (-6.5,-2.3) rectangle (-3.5,-3.2); 
+        \draw (-5,-2.75) node [scale=0.8]{L2スイッチ(外部用)};
+        %-------------------------------------------------------------------------
+        \draw[rounded corners=5mm] (-3.4,-0.8) rectangle (7.8,-4.4);
+        \draw (-3.2,-4.1) node[scale=0.8,anchor=west]{DMZ(非武装地帯)};
+        \draw[rounded corners=1mm] (6.4,0.9) rectangle (7.6,0.3);
+        \draw[rounded corners=1mm] (6.4,-1) rectangle (7.6,-1.6);
+        \draw[rounded corners=1mm] (6.4,-2.6) rectangle (7.6,-3.2);
+        \draw[rounded corners=1mm] (6.4,-3.6) rectangle (7.6,-4.2);
+        \draw[rounded corners=1mm] (6.4,-5) rectangle (7.6,-5.6);
+        \draw(7,0.6) node [scale=0.8]{eth0};
+        \draw(7,-1.3) node [scale=0.8]{em2};
+        \draw(7,-2.9) node [scale=0.8]{em1};
+        \draw(7,-3.9) node [scale=0.8]{em2};
+        \draw(7,-5.3) node [scale=0.8]{eth0};
+        %-------------------------------------------------------------------------
+        \draw (-2.4,-1.7) rectangle (-1,-2.5);
+        \draw (-1.7,-2.1) node [scale=0.6]{webサーバ1};
+        \draw (-0.4,-1.7) rectangle (1,-2.5);
+        \draw (0.3,-2.1) node [scale=0.6]{webサーバ2};
+        \draw (1.6,-1.7) rectangle (3,-2.5);
+        \draw (2.3,-2.1) node [scale=0.6]{webサーバ3};
+        \draw (3.6,-1.7) rectangle (5,-2.5);
+        \draw (4.3,-2.1) node [scale=0.6]{webサーバ4};
+        \draw (5.6,-1.7) rectangle (7,-2.5);
+        \draw (6.3,-2.1) node [scale=0.6]{webサーバ5};
+        \draw (-1.4,-3) rectangle (0,-3.8);
+        \draw (-0.7,-3.4) node [scale=0.6]{webサーバ6};
+        \draw (0.6,-3) rectangle (2,-3.8);
+        \draw (1.3,-3.4) node [scale=0.6]{webサーバ7};
+        \draw (2.6,-3) rectangle (4,-3.8);
+        \draw (3.3,-3.4) node [scale=0.6]{webサーバ8};
+        \draw (4.6,-3) rectangle (6,-3.8);
+        \draw (5.3,-3.4) node [scale=0.6]{webサーバ9};
+        %-------------------------------------------------------------------------
+        \draw[ultra thick](-5,0)--(-5,-0.6);
+        \draw[ultra thick](-5,-2)--(-5,-2.3);
+        \draw[ultra thick](-3.5,-2.75)--(6.3,-2.75);
+        %-------------------------------------------------------------------------
+        \draw[ultra thick](-1.7,-2.5)--(-1.7,-2.75);
+        \draw[ultra thick](0.3,-2.75)--(0.3,-2.5);
+        \draw[ultra thick](2.3,-2.75)--(2.3,-2.5);
+        \draw[ultra thick](4.3,-2.75)--(4.3,-2.5);
+        \draw[ultra thick](6.3,-2.75)--(6.3,-2.5);
+        \draw[thick](-1.7,-0.6)--(-1.7,-1.7);
+        \draw[thick](0.3,-0.6)--(0.3,-1.7);
+        \draw[thick](2.3,-0.6)--(2.3,-1.7);
+        \draw[thick](4.3,-0.6)--(4.3,-1.7);
+        \draw[thick](6.3,-0.6)--(6.3,-1.7);
+        %-------------------------------------------------------------------------
+        \draw[ultra thick](-0.7,-2.75)--(-0.7,-3);
+        \draw[ultra thick](1.3,-2.75)--(1.3,-3);
+        \draw[ultra thick](3.3,-2.75)--(3.3,-3);
+        \draw[ultra thick](5.3,-2.75)--(5.3,-3);
+        \draw[thick](-0.7,-3.8)--(-0.7,-4.5);
+        \draw[thick](1.3,-3.8)--(1.3,-4.5);
+        \draw[thick](3.3,-3.8)--(3.3,-4.5);
+        \draw[thick](5.3,-3.8)--(5.3,-4.5);
+        %--------------------------------------------------------------------------
+        \draw(-2.4,0.2) rectangle (-1,-0.6);
+        \draw(-0.4,0.2) rectangle (1,-0.6);
+        \draw(1.6,0.2) rectangle (3,-0.6);
+        \draw(3.6,0.2) rectangle (5,-0.6);
+        \draw(5.6,0.2) rectangle (7,-0.6);
+        \draw(-1.4,-4.5) rectangle (0,-5.3);
+        \draw(0.6,-4.5) rectangle (2,-5.3);
+        \draw(2.6,-4.5) rectangle (4,-5.3);
+        \draw(4.6,-4.5) rectangle (6,-5.3);
+        %--------------------------------------------------------------------------
+        \draw (-1.7,-0.2)node [scale=0.8]{raspi 1};
+        \draw (0.3,-0.2)node [scale=0.8]{raspi 2};
+        \draw (2.3,-0.2)node [scale=0.8]{raspi 3};
+        \draw (4.3,-0.2)node [scale=0.8]{raspi 4};
+        \draw (6.3,-0.2)node [scale=0.8]{raspi 5};
+        \draw (-0.7,-4.9)node [scale=0.8]{raspi 6};
+        \draw (1.3,-4.9)node [scale=0.8]{raspi 7};
+        \draw (3.3,-4.9)node [scale=0.8]{raspi 8};
+        \draw (5.3,-4.9)node [scale=0.8]{raspi 9};
+      \end{circuitikz}
+    \end{center}
+    \caption{ネットワーク構成図（リモート接続時）}\label{fig:ネットワーク構成図２}
+  \end{figure}
+  \begin{table}[H]
+    \caption{各種サーバのIPアドレス(2週目のリモート接続時)}\label{tab:IP_tab2}
+    \begin{center}
+      \scalebox{1}{
+        \begin{tabular}{|c|c|c||c|c|}
+          \hline
+            webサーバ& em1（外部用）&em2（内部用）&Raspberry Pi&eth0\\
+          \hline
+          1&10.0.0.107&192.168.10.107&raspi 1&192.168.10.207\\
+          2&10.0.0.108&192.168.10.108&raspi 2&192.168.10.208\\
+          3&10.0.0.128&192.168.10.128&raspi 3&192.168.10.228\\
+          4&10.0.0.130&192.168.10.130&raspi 4&192.168.10.230\\
+          5&10.0.0.132&192.168.10.132&raspi 5&192.168.10.232\\
+          6&10.0.0.136&192.168.10.136&raspi 6&192.168.10.236\\
+          7&10.0.0.137&192.168.10.137&raspi 7&192.168.10.237\\
+          8&10.0.0.138&192.168.10.138&raspi 8&192.168.10.238\\
+          9&10.0.0.139&192.168.10.139&raspi 9&192.168.10.239\\
+          \hline
+        \end{tabular}
+    }
+    \end{center}
+    \end{table}    
+      \item [(8)]\quad
+      \begin{screen}
+        \#ping 127.0.0.1
+      \end{screen}
+      \begin{screen}
+        \#ping 192.168.10.228
+      \end{screen}
+      \begin{screen}
+        \#ping 192.168.10.128
+      \end{screen}
+      でループバックアドレスとeth0とem2のIPアドレスの疎通を確認した。
+      \item [(9)]\quad
+      \begin{screen}
+        \# ssh [username]\makeatletter@192.168.10.128
+      \end{screen}
+      em2のIPアドレスを入力し、ssh接続する。
+      \item [(10)]\quad
+      \begin{screen}
+        sudo yum -y install httpd
+      \end{screen}
+      yumを用いてApacheをインストールした。
+      \item [(11)]\quad
+      \begin{screen}
+        \$ cd /etc/httpd/conf\\
+        \$ sudo vi httpd.conf
+      \end{screen}
+      を実行して、vimコマンドで以下のようにApacheの設定ファイルを編集し、Listen先を変更した。
+      \begin{screen}
+        Listen 10.0.0.128:80
+      \end{screen}
+      \item [(12)]\quad
+      \begin{screen}
+        \$ cd /var/www/html\\
+        \$ sudo vi index.html  
+      \end{screen}
+      vimコマンドを用いてindex.htmlファイルを作成した。(§2.3でスクリプトを示す。)
+      \item [(13)]\quad
+      \begin{screen}
+        \$ sudo systemctl stop firewalld\\
+        \$sudo systemctl disable firewalld\\
+        \$sudo setenforce permissive
+      \end{screen}
+      上記のコマンド３つを用いてfirewalldとSELinuxを停止＆無効化した。
+      \item [(14)]\quad
+      \begin{screen}
+        \$ sudo systemctl enable httpd\\
+        \$ sudo systemctl start httpd
+      \end{screen}
+      を用いてApache(httpd)を起動した。
+      \item [(15)]「/etc/dhcpcd.conf」を書き換え、ラズパイを外部ネットワークとして認識されるようにネットワーク設定を行った。
+      \begin{screen}
+        \$ sudo vi /etc/dhcpcd.conf\\
+        \verb|interface eth0|\\
+        \verb|static ip_address=10.0.0.228/24|\\
+        \$ sudo reboot
+      \end{screen}
+      を実行し、再起動したのちにRaspberry PiとL2スイッチをLANケーブルで図\ref{fig:ネットワーク構成図３}のように接続した。
+      
+    \begin{figure}[H]
+      \begin{center}
+        \begin{circuitikz}
+          \draw (-5,0.5) circle [x radius=2,y radius=0.5,rotate=0] node {インターネット};
+          %円柱（ルーター）---------------------------------------------------------
+          \filldraw [fill=gray](-5,-1) circle [x radius=1,y radius=0.4,rotate=0];
+          \draw (-6,-1)--(-6,-1.7); 
+          \draw (-4,-1)--(-4,-1.7);
+          \draw (-6,-1.7) to [out=-30,in=-150] (-4,-1.7);
+          \draw [white,->,>=stealth,line width=2pt](-4.9,-0.95)--(-4.2,-0.85);
+          \draw [white,<-,>=stealth,line width=2pt](-4.9,-1.05)--(-4.2,-1.15);
+          \draw [white,<-,>=stealth,line width=2pt](-5,-0.95)--(-5.7,-0.85);
+          \draw [white,->,>=stealth,line width=2pt](-5,-1.05)--(-5.7,-1.15);
+          \draw (-6,-1.35)node [anchor=east]{ルータ};
+          %-------------------------------------------------------------------------
+          \draw (-6.5,-2.3) rectangle (-3.5,-3.2); 
+          \draw (-5,-2.75) node [scale=0.8]{L2スイッチ(外部用)};
+          \draw [ultra thick] (6.3,0)--(-3,0);
+          \draw [ultra thick] (-3,-4)--(5.3,-4);
+          \draw [ultra thick] (-3,0)--(-3,-4);
+          %-------------------------------------------------------------------------
+          \draw[rounded corners=5mm] (-2.7,-1) rectangle (7.7,-3.9);
+          \draw (-2.5,-1.4) node[scale=1,anchor=west]{DMZ(非武装地帯)};
+          \draw[rounded corners=1mm] (6.4,-0.8) rectangle (7.6,-0.2);
+          \draw[rounded corners=1mm] (6.4,-2.9) rectangle (7.6,-3.5);
+          \draw[rounded corners=1mm] (6.4,-5.5) rectangle (7.6,-6.1);
+          \draw(7,-0.5) node [scale=0.8]{eth0};
+          \draw(7,-3.2) node [scale=0.8]{em1};
+          \draw(7,-5.8) node [scale=0.8]{eth0};
+          %-------------------------------------------------------------------------
+          \draw (-2.4,-1.7) rectangle (-1,-2.5);
+          \draw (-1.7,-2.1) node [scale=0.6]{webサーバ1};
+          \draw (-0.4,-1.7) rectangle (1,-2.5);
+          \draw (0.3,-2.1) node [scale=0.6]{webサーバ2};
+          \draw (1.6,-1.7) rectangle (3,-2.5);
+          \draw (2.3,-2.1) node [scale=0.6]{webサーバ3};
+          \draw (3.6,-1.7) rectangle (5,-2.5);
+          \draw (4.3,-2.1) node [scale=0.6]{webサーバ4};
+          \draw (5.6,-1.7) rectangle (7,-2.5);
+          \draw (6.3,-2.1) node [scale=0.6]{webサーバ5};
+          \draw (-1.4,-3) rectangle (0,-3.8);
+          \draw (-0.7,-3.4) node [scale=0.6]{webサーバ6};
+          \draw (0.6,-3) rectangle (2,-3.8);
+          \draw (1.3,-3.4) node [scale=0.6]{webサーバ7};
+          \draw (2.6,-3) rectangle (4,-3.8);
+          \draw (3.3,-3.4) node [scale=0.6]{webサーバ8};
+          \draw (4.6,-3) rectangle (6,-3.8);
+          \draw (5.3,-3.4) node [scale=0.6]{webサーバ9};
+          %-------------------------------------------------------------------------
+          \draw[ultra thick](-5,0)--(-5,-0.6);
+          \draw[ultra thick](-5,-2)--(-5,-2.3);
+          \draw[ultra thick](-3.5,-2.75)--(6.3,-2.75);
+          %-------------------------------------------------------------------------
+          \draw[ultra thick](-1.7,-2.5)--(-1.7,-2.75);
+          \draw[ultra thick](0.3,-2.75)--(0.3,-2.5);
+          \draw[ultra thick](2.3,-2.75)--(2.3,-2.5);
+          \draw[ultra thick](4.3,-2.75)--(4.3,-2.5);
+          \draw[ultra thick](6.3,-2.75)--(6.3,-2.5);
+          \draw[ultra thick](-1.7,0.4)--(-1.7,0);
+          \draw[ultra thick](0.3,0.4)--(0.3,0);
+          \draw[ultra thick](2.3,0.4)--(2.3,0);
+          \draw[ultra thick](4.3,0.4)--(4.3,0);
+          \draw[ultra thick](6.3,0.4)--(6.3,0);
+          %-------------------------------------------------------------------------
+          \draw[ultra thick](-0.7,-2.75)--(-0.7,-3);
+          \draw[ultra thick](1.3,-2.75)--(1.3,-3);
+          \draw[ultra thick](3.3,-2.75)--(3.3,-3);
+          \draw[ultra thick](5.3,-2.75)--(5.3,-3);
+          \draw[ultra thick](-0.7,-4)--(-0.7,-4.5);
+          \draw[ultra thick](1.3,-4)--(1.3,-4.5);
+          \draw[ultra thick](3.3,-4)--(3.3,-4.5);
+          \draw[ultra thick](5.3,-4)--(5.3,-4.5);
+          %--------------------------------------------------------------------------
+          \draw(-2.4,1.2) rectangle (-1,0.4);
+          \draw(-0.4,1.2) rectangle (1,0.4);
+          \draw(1.6,1.2) rectangle (3,0.4);
+          \draw(3.6,1.2) rectangle (5,0.4);
+          \draw(5.6,1.2) rectangle (7,0.4);
+          \draw(-1.4,-4.5) rectangle (0,-5.3);
+          \draw(0.6,-4.5) rectangle (2,-5.3);
+          \draw(2.6,-4.5) rectangle (4,-5.3);
+          \draw(4.6,-4.5) rectangle (6,-5.3);
+          %--------------------------------------------------------------------------
+          \draw (-1.7,0.8)node [scale=0.8]{raspi 1};
+          \draw (0.3,0.8)node [scale=0.8]{raspi 2};
+          \draw (2.3,0.8)node [scale=0.8]{raspi 3};
+          \draw (4.3,0.8)node [scale=0.8]{raspi 4};
+          \draw (6.3,0.8)node [scale=0.8]{raspi 5};
+          \draw (-0.7,-4.9)node [scale=0.8]{raspi 6};
+          \draw (1.3,-4.9)node [scale=0.8]{raspi 7};
+          \draw (3.3,-4.9)node [scale=0.8]{raspi 8};
+          \draw (5.3,-4.9)node [scale=0.8]{raspi 9};
+        \end{circuitikz}
+      \end{center}
+      \caption{ネットワーク構成図（外部ネットワーク）}\label{fig:ネットワーク構成図３}
+    \end{figure}
+      \begin{table}[H]
+        \caption{各種サーバのIPアドレス(2週目のL2スイッチ接続時)}\label{tab:IP_tab3}
+        \begin{center}
+          \scalebox{1}{
+            \begin{tabular}{|c|c||c|c|}
+              \hline
+                webサーバ& em1（外部用）&Raspberry Pi&eth0\\
+              \hline
+              1&10.0.0.107&raspi 1&10.0.0.207\\
+              2&10.0.0.108&raspi 2&10.0.0.208\\
+              3&10.0.0.128&raspi 3&10.0.0.228\\
+              4&10.0.0.130&raspi 4&10.0.0.230\\
+              5&10.0.0.132&raspi 5&10.0.0.232\\
+              6&10.0.0.136&raspi 6&10.0.0.236\\
+              7&10.0.0.137&raspi 7&10.0.0.237\\
+              8&10.0.0.138&raspi 8&10.0.0.238\\
+              9&10.0.0.139&raspi 9&10.0.0.239\\
+              \hline
+            \end{tabular}
+        }
+        \end{center}
+        \end{table}
+      \newpage
+      \item [(16)]\quad
+      \begin{screen}
+        \$ ip addr show dev eth0
+      \end{screen}
+      デバイスeth0が正しく設定されていることを確認し、
+      \begin{screen}
+        \$ ping 127.0.0.1
+      \end{screen}
+      \begin{screen}
+        \$ ping 10.0.0.228
+      \end{screen}
+      \begin{screen}
+        \$ ping 10.0.0.128
+      \end{screen}
+      pingコマンドを用いて上記のIPアドレスが疎通しているかを確認した。
+      \item [(17)]起動中のRaspberry Piのブラウザから、「http://10.0.0.128」にアクセスした。
+      \item [(18)]同様に、表\ref{tab:url}にあるそれぞれのサイトにひとつずつアクセスした。       
+        \begin{table}[H]
+          \caption{URL一覧}\label{tab:url}
+          \begin{center}
+            \scalebox{1}{
+              \begin{tabular}{|c|c|}
+                \hline
+                  webサーバ& 2班の実験者が作成したWebサイト\\
+                \hline
+                1&http://10.0.0.107\\
+                2&http://10.0.0.108\\
+                3&http://10.0.0.128\\
+                4&http://10.0.0.130\\
+                5&http://10.0.0.132\\
+                6&http://10.0.0.136\\
+                7&http://10.0.0.137\\
+                8&http://10.0.0.138\\
+                9&http://10.0.0.139\\
+                \hline
+              \end{tabular}
+          }
+          \end{center}
+          \end{table}
+      \item [(19)]最後に、Gpartedを用いてWebサーバの初期化を行った。
+    \end{itemize}
+  \newpage
+  \subsection{HTMLファイルの作成}
+  Apacheサーバを立てた時に使用した、HTMLファイルを以下に示す。
+  \begin{screen}
+    \textless !DOCTYPE html\textgreater\\
+    \textless html\textgreater\\
+      \textless head\textgreater\\
+        \quad\textless meta charset="utf-8"\textgreater\\
+        \quad\textless title\textgreater tochiman.web\textgreater\textless/title\textgreater\\
+      \textless /head\textgreater\\
+      \textless body\textgreater\\
+        \quad\textless div class="main"\textgreater\\
+          \quad\quad\textless h1\textgreater2428 tochizawa yuuto\textless/h1\textgreater\\
+        \quad\textless/div\textgreater\\
+        \textless div class="link"\textgreater\\
+          \quad\quad\textless ol\textgreater\\
+            \quad\quad\quad\textless li\textgreater\textless a href="http://10.0.0.107"\textgreater2407\textless/a\textgreater\textless/li\textgreater\\
+            \quad\quad\quad\textless li\textgreater\textless a href="http://10.0.0.108"\textgreater2408\textless/a\textgreater\textless/li\textgreater\\
+            \quad\quad\quad\textless li\textgreater\textless a href="http://10.0.0.130"\textgreater2430\textless/a\textgreater\textless/li\textgreater\\
+            \quad\quad\quad\textless li\textgreater\textless a href="http://10.0.0.132"\textgreater2432\textless/a\textgreater\textless/li\textgreater\\
+            \quad\quad\quad\textless li\textgreater\textless a href="http://10.0.0.136"\textgreater2436\textless/a\textgreater\textless/li\textgreater\\
+            \quad\quad\quad\textless li\textgreater\textless a href="http://10.0.0.137"\textgreater2437\textless/a\textgreater\textless/li\textgreater\\
+            \quad\quad\quad\textless li\textgreater\textless a href="http://10.0.0.138"\textgreater2438\textless/a\textgreater\textless/li\textgreater\\
+            \quad\quad\quad\textless li\textgreater\textless a href="http://10.0.0.139"\textgreater2439\textless/a\textgreater\textless/li\textgreater\\
+            \quad\quad\textless /ol\textgreater\\
+            \quad\textless /div\textgreater\\
+      \textless /body\textgreater\\
+    \textless /html\textgreater
+  \end{screen}
+\newpage
+\section{考察}
+考察課題として１週目は４つ、２週目は３つを以下に示す。
+  \subsection{1週目}
+  \begin{itemize}
+    \item [1.](ディスクパーティショニング)[1]\\
+    記憶装置を仮想的（理論的）に区切った領域のことをディスクパーティションという。これを行うことで、異なるパーティションごとに異なるOSをインストールできる。このようなことから、複数のOSを使い分けたり、バックアップ用の領域を作成したりして利便性を高めることができる。
+    \item [2.](プライベートネットワーク)[2][3]\\
+    プライベートネットワークとは外部からは非公開のネットワークのことである。また、今回の実験で設定（「ping」コマンドを飛ばした）したアドレスとして、「10.0.0.128」、「192.168.10.128」と「127.0.0.1」がある。「10.0.0.128」と「192.168.10.128」はプライベートIPアドレスと言われるものである。これらは、プライベートネットワークで使用するIPアドレスであるため、ある組織内のネットワーク管理者（そのプライベートネットワークを管理している人）が自由に作ることができる。そのため、異なるネットワークである限り同じIPアドレスを使用しても問題がないと言える。次に、「127.0.0.1」は特殊なIPアドレスであって、これはネットワークカードなどに割り当てられたコンピュータ自身を示す「ループバックアドレス」である。
+    \item [3.](IPアドレスの衝突)[4]\\
+    IPアドレスを誤って重複するものを設定してしまった場合、LAN（ローカルな環境）の場合は「ARPプロトコル」によりリンクローカルアドレスと呼ばれる「169.254.xxx.xxx」の中からランダムで割り当てられる。「ARPプロトコル」の動作として、最初にそのプライベートネットワーク内の機器に対して自分の設定されているIPアドレスが使用されているかを問いかける。このときに応答があると自分のIPアドレスが他の機器ですでに使用されていることになるため、リンクローカルアドレスからランダム割り当てられる。また、このリンクローカルアドレスも同様に他の機器で使用されているかを確認してから使用されていなかったら、「ARP Announcement」をだしてそのリンクローカルアドレスを使用する。つまり、LAN内においてはIPアドレスが重複しても基本的に通信を行うことができる。次に、ネットワーク上（WANやMAN等）においてはISP（通信事業者）が国際的にIPアドレスを管理しているため、重複することはないと考えられる。
+    \item [4.](IPアドレスとMACアドレス)[5]\\MACアドレスは１２桁の１６進数で表記される（このとき、前半６桁はメーカー固有のアドレスで、後半６桁は製品個々のアドレスである）。このようなことから、MACアドレスは重複することはない。また、IPアドレスは通信相手であるサーバーとのやり取りで使われるが、MACアドレスは隣にある装置との通信で使用される。またMACアドレスは通信時にIPパケットのヘッダー部にMACアドレスが使われていて、MACアドレスなしでは通信が成り立たないようになっている。
+  \end{itemize}
+  \subsection{2週目}
+  \begin{itemize}
+    \item [1.](httpとhttps)[6][7]\\
+    httpsは、http over TLSとも呼ばれていて、RFC文書と呼ばれるインターネットの標準的な仕様を記した文書の2818番にhttps(http over TLS)が記されている。httpとhttpsの違いとして、secure機能の有無がある。httpの通信では暗号化されていないため、通信内容が漏れることがある。しかし、https通信ではSSLを使用して暗号化を行ってから通信を行っている。また、SSLでは「SSLサーバ証明書」と呼ばれているものがあり、これにサイトの運営者を登録されている。これらのことから、httpsのほうがhttpより通信の安全性が高いと言える。
+    \item [2.](二重のファイアーウォール)[8][9]\\
+    ファイアーウォールとは、事前に決められたルールの下で通してよい通信かを判断することで、不正アクセスやサイバー攻撃を防ぐ仕組みのことである。またファイアーウォールには監視機能としてログを追跡することができる。また、ファイアーウォールを停止することで、前述の機能が使えなくなりウイルス感染やハッキングにつながる可能性につながる。次に、二重ファイアーウォールでは通信は行えるが安全なソフトやプログラムが正常に動作できなかったり、インターネットの通信速度がかなり落ちるため、２つファイアーウォールある状態が必ずしも良いとは言えない事が考えられる。
+    \item [3.](SELinux)[10]\\
+    SELinuxとはディストリビューションの一つではなく、カーネルの制御機能の一つである。また、SELinuxというものは細かいアクセス制御に使われていて、root権限に対しても制限をかけることが可能となっている。しかし、root権限にも制限をかけられるくらい細かいアクセス制御ができることからプログラムが動かなくなる場合があるため、実験の際にSELinuxを無効化したと考えられる。
+  \end{itemize}
+\section{まとめ}
+  今回の実験を通して実験の目的にあるような知識について、実機を用いて実験を行うことで知識を深められたので、目的を達成したと言える。
+\section{参考文献}
+\begin{itemize}
+  \item [][1]ディスクパーティションとは、コトバンク、https://bit.ly/33gJPZT
+  \item [][2]プライベートネットワークとは、IT用語辞典e-Words、https://bit.ly/3FwePlA
+  \item [][3]ループバックアドレスとは、IT用語辞典e-Words、https://bit.ly/3I4otNZ
+  \item [][4]IPアドレスの競合、IT情報サイト"ITアベイラボ"、https://bit.ly/3qpsCpW
+  \item [][5]MACアドレスとは？、CMAN、https://www.cman.jp/network/term/mac/
+  \item [][6]HTTP OverTLS、The Internet Society、https://datatracker.ietf.org/doc/html/rfc2818
+  \item [][7]http・httpsとの違いは？ウェブセキュリティの基本を解説、Cyber Security.com、\\https://cybersecurity-jp.com/column/25772
+  \item [][8]ファイアーウォールとは、ITトレンド、https://it-trend.jp/firewall/article/explain
+  \item [][9]パソコンのセキュリティー　二重ファイアウォールと二重ルーターについて。、デジ散歩、http://sky-webnet.blog.jp/archives/1029362454.html
+  \item [][10]SELinuxとは、リカレントテクノロジー、https://eng-entrance.com/linux-selinux
+\end{itemize}
+\end{document}

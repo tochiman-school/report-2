@@ -1,0 +1,782 @@
+\documentclass[12pt,a4paper]{jsarticle}
+
+\usepackage{amsmath,amssymb}
+\usepackage[dvipdfmx]{graphicx}
+\usepackage{float}
+\usepackage{tikz}
+\usepackage{circuitikz}
+\usepackage{siunitx}
+\usepackage{at}
+\usepackage{comment}
+\usepackage[hang,small,bf]{caption}
+\usepackage[subrefformat=parens]{subcaption}
+
+\captionsetup{compatibility=false}
+
+\usetikzlibrary{intersections,calc,arrows.meta}
+
+\numberwithin{equation}{section}
+\numberwithin{figure}{section}
+\numberwithin{table}{section}
+
+\begin{document}
+  \section{実験の目的}
+  交流の直列並列共振回路を実験で測定して共振について理解することを目的とする。
+
+  \section{原理}
+  \subsection{直列共振回路}
+  図\ref{fig:直列共振回路}の回路全体の合成インピーダンス$\vec{Z}$ $\si{\ohm}$は、角周波数$\omega$（$\omega = \SI{2}{\pi}$$f$, $f$は周波数）によって変化する。
+  \begin{equation}
+    \vec{Z}=R+j(X_L-X_C)=R+j(\omega L - 1/\omega C)
+  \end{equation}
+  \begin{equation}
+    |\vec{Z}|=Z=\sqrt{R^{2}+(\omega L - 1/\omega C)^{2}}
+  \end{equation}
+  ここで、$\omega L - 1/\omega C=0$ の時$\vec{Z}$の大きさは$Z=R$と最小値となり、電流$I=E/Z$は最大となる。この現象を（直列）共振という。直列共振時の角周波数$\omega_0$及び周波数$f_0$は
+  \begin{equation}
+    \omega_0=\dfrac{1}{\sqrt{LC}},\quad f_0=\dfrac{1}{2\pi\sqrt{LC}}
+  \end{equation}
+  となる。共振状態の時のコイルの端子電圧は、
+  \begin{equation}
+    V_L=X_{L}I=\omega_{0}L\dfrac{E}{R}
+  \end{equation}
+  よりコイルの選択度$Q$は、
+  \begin{equation}
+    Q=\dfrac{V_L}{E}=\dfrac{\omega_{0}L}{R}
+  \end{equation}
+  となる。この$Q$はコイルやコンデンサの良さを測る量になる。同様に、コンデンサの選択度$Q$は以下のように求められる。
+  \begin{equation}
+    Q=\dfrac{V_C}{E}=\dfrac{1}{\omega_0CR}
+  \end{equation}
+
+  \newpage
+  \begin{figure}[t]
+    \begin{center}
+      \begin{circuitikz}
+        \draw (0,0)
+          to[vsourcesin](7,0)
+          to[short](7,3)
+          to[C](4.5,3)
+          to[L](3,3)
+          to[european resistor](0,3)
+          to[short](0,0);
+        \draw [->] (0,0)--(0,1.5);
+        \draw (0.5,1.7) node[anchor=north]{$I$};
+        \draw (3.5,1) node[anchor=north]{$E$};
+        \draw (1.5,4) node[anchor=north]{$R$};
+        \draw (3.8,2.5) node[anchor=north]{$L$};        
+        \draw (5.8,2.5) node[anchor=north]{$C$};
+        \draw (3.8,4) node[anchor=north]{$X_L$};
+        \draw (5.8,4) node[anchor=north]{$X_C$};
+        \draw (2.7,4.2)--(2.7,5.2);
+        \draw [<->](2.7,4.7)--(4.8,4.7);
+        \draw (4.8,4.2)--(4.8,5.2);
+        \draw [<->](4.8,4.7)--(6.6,4.7);
+        \draw (6.6,4.2)--(6.6,5.2);
+        \draw (3.8,5.3) node[anchor=north]{$V_L$};
+        \draw (5.8,5.3) node[anchor=north]{$V_C$};
+      \end{circuitikz}
+      \caption{直列共振回路}\label{fig:直列共振回路}
+    \end{center}
+  \end{figure}
+
+  \subsection{並列共振回路}
+  図\ref{fig:並列共振回路}のようにコイル$L$コンデンサ$C$を並列にし、$R_L$及び$R_C$はそれぞれコイル、コンデンサの抵抗で電源$E$を加えた回路である。
+  \begin{figure}[H]
+    \begin{center}
+      \begin{circuitikz}
+        \draw (0,0)
+          to[vsourcesin](6.5,0);
+        \draw [->] (0,0)--(0,1.7);
+        \draw (0,1.7)--(0,3.5);
+        \draw[->] (0,3.5)--(1,3.5)--(1,4.7);
+        \draw(1,4.7)--(1.3,4.7)
+          to[european resistor](4,4.7)
+          to[C](5.5,4.7);
+        \draw(5.5,4.7)--(5.5,3.5)--(6.5,3.5)--(6.5,0);
+        \draw[->](1,3.5)--(1,2.3);
+        \draw(1,2.3)  
+          to[european resistor](4,2.3)
+          to[L](5.5,2.3);
+        \draw(5.5,2.3)--(5.5,3.5);
+        \fill [black] (1,3.5) circle (0.06);
+        \fill [black] (5.5,3.5) circle (0.06);
+        \draw (0.5,1.8) node[anchor=north]{$I$};
+        \draw (3.3,1) node[anchor=north]{$E$};
+        \draw (1,5.7) node[anchor=north]{$I_L$};
+        \draw (2.7,5.7) node[anchor=north]{$R_C$};
+        \draw (4.7,5.7) node[anchor=north]{$X_C$};
+        \draw (4.7,4.2) node[anchor=north]{$C$};
+        \draw (1,2) node[anchor=north]{$I_L$};
+        \draw (4.7,2) node[anchor=north]{$L$};
+        \draw (2.5,3) node[anchor=north]{$R_L$};
+        \draw (4.7,3) node[anchor=north]{$X_L$};
+      \end{circuitikz}
+      \caption{並列共振回路}\label{fig:並列共振回路}
+    \end{center}
+  \end{figure}
+  \newpage
+  回路の合成アドミタンス$\vec{Y}$は、
+  \begin{equation}
+    \begin{split}
+      &\vec{Y}=\dfrac{R_L-j\omega L}{R_L^2+(\omega L)^2}+\dfrac{R_C+j(1/\omega C)}{R_C^{2}+(1/\omega C)^2} \\ 
+      &=[\dfrac{R_L}{R_L^2+(\omega L)^2}+\dfrac{R_C}{R_C^2+(1/\omega C)^2}]-j[\dfrac{\omega L}{R_L^2+(\omega L)^2}+\dfrac{1/\omega C}{R_C^2+(1/\omega C)^2}]
+    \end{split}
+  \end{equation}
+  共振条件（共振部＝０）を満足するための周波数の条件は、
+  \begin{equation}
+    \dfrac{\omega_0 L}{R_L^2+(\omega_0 L)^2}-\dfrac{1/\omega_0 C}{R_C^2+(1/\omega_0 C)^2}
+  \end{equation}
+  である。ここで、$R_L$及び$R_C$は小さいので無視すれば、$\omega_0 L=1/\omega_0 C$となり、
+  \begin{equation}
+    \omega_0^2=\dfrac{1}{LC} \quad \omega_0=\dfrac{1}{\sqrt{LC}}
+  \end{equation}
+  と共振（角）周波数は、直列共振の時と同じになる。
+
+  \newpage
+  \section{実験}
+  今回の実験では、周波数$f$、共振周波数$f'_0$、測定電圧$V_1V_2$、P-P値$V_{pp}$の測定を行った。ここで、回路図内のディジタルオシロスコープのことを表\ref{tab:使用機器}より3/25を1台目のオシロスコープ、1/25を2台目のオシロスコープとする。また、測定電圧$V_1$は抵抗$r$のみを測定していて、測定電圧$V_2$はインダクタンス$L$とキャパシタンス$C$を測定した。
+
+  \subsection{実験方法}
+  今回の実験は２回に分けて実験した。１回目は直列共振回路の実験で、２回目は並列共振回路の実験であった。以下にそれぞれの実験方法を示す。
+
+  \subsubsection{実験１回目:直列共振回路}
+  \begin{figure}[H]
+    \centering
+      \begin{circuitikz}
+        \draw (0,0)
+          to[vsourcesin](0,5)
+          to[short](1.25,5)
+          to[short](1.25,3);
+        \draw (1.25,2.5) circle (0.5);
+        \draw (1.25,2)
+          to [short] (1.25,0)
+          to [short] (0,0);
+        \draw (1,5)
+          to[short](3,5)
+          to[short](3,4.7);
+        \draw (3,4.2) circle (0.5);
+        \draw (3,3.7)
+          to [short] (3,2.3);
+        \draw (3,1.8) circle(0.5);
+        \draw (3,1.3)
+          to [short](3,0)
+          to [short](1,0);
+        \draw (3,5)
+          to[short] (4.5,5)
+          to [european resistor] (4.5,3.25)
+          to [L] (4.5,1.65)
+          to [C] (4.5,0)
+          to [short] (3,0);
+        \draw (3,3.25)
+          to [short] (8,3.25)
+          to [short] (8,2.2);
+        \draw (8,1.7) circle(0.5);
+        \draw (8,1.2)
+          to [short] (8,0)
+          to [short] (6.5,0)
+          to [short] (6.5,0.2);
+        \draw (6.5,0.7) circle(0.5);
+        \draw (6.5,1.2)
+          to [short] (6.5,1.5)
+          to [short] (4.5,1.5);
+        \draw (6.5,0)
+          to [short] (4.5,0);
+        \fill [black] (1.25,5) circle (0.06);
+        \fill [black] (3,5) circle (0.06);
+        \fill [black] (1.25,0) circle (0.06);
+        \fill [black] (3,0) circle (0.06);
+        \fill [black] (3,3.25) circle (0.06);
+        \fill [black] (4.5,3.25) circle (0.06);
+        \fill [black] (4.5,1.5) circle (0.06);
+        \fill [black] (4.5,0) circle (0.06);
+        \fill [black] (6.5,0) circle (0.06);
+        \draw (1.25,0) to (1.25,-0.1) node[cground]{};
+        \draw (3.05,4.45) node[anchor=north]{$\si{V_1}$};  
+        \draw (3.05,2.05) node[anchor=north]{$\si{V_2}$};  
+        \draw (-0.8,2.7) node[anchor=north]{$E$};   
+        \draw (5.25,4.35) node[anchor=north]{$r$};
+        \draw (5.25,2.65) node[anchor=north]{$L$};
+        \draw (5.25,1.15) node[anchor=north]{$C$};
+        \draw (1.9,1.6) node[anchor=north]{1台目};
+        \draw (1.9,1.2) node[anchor=north]{OSC.};
+        \draw (1.9,0.8) node[anchor=north]{CH1};
+        \draw (6.8,3.1) node[anchor=north]{2台目};
+        \draw (6.8,2.6) node[anchor=north]{OSC.};
+        \draw (6.8,2.2) node[anchor=north]{CH1};
+        \draw (9,3.8) node[anchor=north]{2台目};
+        \draw (9,3.4) node[anchor=north]{OSC.};
+        \draw (9,3) node[anchor=north]{CH2};
+        \draw (0.9,2.45)--(1.3,2.7)--(1.3,2.5)--(1.5,2.6);
+        \draw (6.2,0.6)--(6.6,0.8)--(6.6,0.65)--(6.75,0.8);
+        \draw (7.7,1.6)--(8.1,1.8)--(8.1,1.65)--(8.3,1.8);
+      \end{circuitikz}
+      \caption{直列共振回路図} \label{fig:circui1}
+  \end{figure}
+
+  \begin{itemize}
+    \item [(1)] 与えられたコイルとコンデンサから次の計算をした。
+    \begin{itemize}
+      \item [・]　コイルの$L=\SI{10}{\milli\henry}$,コンデンサの容量$C=\SI{22}{\nano\farad}$
+      \item [・]　計算（公称値）：共振周波数$f_0=\SI{10.7}{\kilo\hertz}$
+    \end{itemize}
+    \item [(2)] 直列抵抗$r=\SI{10}{\ohm}$を使って、ブレッドボードで接続図\ref{fig:circui1}のように結線した。
+    \item [(3)] ディジタルオシロスコープ（以下オシロスコープ）の電源を入れた。オシロスコープにプローブを差したのちに、プローブの調整を行った。
+    \item [(4)] １台目のオシロスコープのMEASURE表示をCH1：周波数、CH1：P-P値に、2台目のオシロスコープのMEASURE表示をCH1：P-P値、MATH：P-P値、CH2：P-P値、CH2：位相（基準CH1）にし、MATHボタンを押し演算でCH1-CH2を表示させた。また、すべての信号入力をACにした。
+    \item [(5)] 関数発生器の電源を入れた。関数発生器を調整して、$\SI{9}{\kilo\hertz}$のときに1台目オシロスコープの$V_{pp}$が$\SI{2}{\volt}$になるように設定した。（以降、周波数を変えるたびに出力電圧が$\SI{2}{\volt}$になっていることを確認しながら進めた。）この時点で1台目オシロスコープにカーソルを表示し、カーソル１を$+\SI{1}{\volt}$、カーソル２を$-\SI{1}{\volt}$に設置した。
+    \item [(6)] ２チャンネル電子電圧計（以下電子電圧計）の電源を入れる。（※３Pコンセントプラグを使用していたため、２P変換を使用してコンセントジャックにさした。）
+    \item [(7)] 電子電圧計の$\si{V_1}$の振れが最大になる周波数を、関数発生器の周波数調整で行い、この時の周波数を共振周波数の測定値$f'_0$として、$V_1$,$f'_0$を記録した。
+    \item [(8)] 関数発生器の周波数を$\SI{9}{\kilo\hertz}$にもどし、$\SI{9}{\kilo\hertz}$から$\SI{12}{\kilo\hertz}$までを10点測定し、表に測定値を記録した。
+    \item [(9)]$\SI{9}{\kilo\hertz}$から$\SI{12}{\kilo\hertz}$の１０点それぞれを、2台目のオシロスコープの波形をＵＳＢに保存した。
+    \item [(10)]実験結果の測定値を用いて、$I-f$,$Z-f$,$Y-f$グラフを作成した。
+  \end{itemize}
+
+  \subsubsection{実験２回目:並列共振回路}
+
+  \begin{figure}[H]
+    \centering
+      \begin{circuitikz}
+        \draw (0,0)
+          to[vsourcesin](0,5)
+          to[short](1.25,5)
+          to[short](1.25,3);
+        \draw (1.25,2.5) circle (0.5);
+        \draw (1.25,2)
+          to [short] (1.25,0)
+          to [short] (0,0);
+        \draw (1,5)
+          to[short](4,5)
+          to[short](4,4.9)
+          to[european resistor](4,2.8)
+          to[short](4,2.2)
+          to[short](3,2.2)
+          to[C](3,0.5)
+          to[short](5,0.5)
+          to[L](5,2.2)
+          to[short](4,2.2);
+        \draw (4,0.5)
+          to[short](4,0)
+          to[short](1,0);
+        \draw (4,5)
+          to[short](7,5)
+          to[short](7,4.5);
+        \draw (7,4) circle (0.5);
+        \draw(7,3.5)
+          to[short](7,2.8)
+          to[short](4,2.8);
+        \draw(7,2.8)
+          to[short](7,2);
+        \draw(7,1.5) circle (0.5);
+        \draw(7,1)
+          to[short](7,0)
+          to[short](4,0);
+        \fill [black] (1.25,5) circle (0.06);
+        \fill [black] (1.25,0) circle (0.06);
+        \fill [black] (4,5) circle (0.06);
+        \fill [black] (4,2.8) circle (0.06);
+        \fill [black] (4,0.5) circle (0.06);
+        \fill [black] (4,0) circle (0.06);
+        \fill [black] (4,2.2) circle (0.06);
+        \fill [black] (7,2.8) circle (0.06);
+        \draw (1.25,0) to (1.25,-0.1) node[cground]{};
+        \draw (7,4.25) node[anchor=north]{$\si{V_1}$};  
+        \draw (7,1.75) node[anchor=north]{$\si{V_2}$};  
+        \draw (-0.8,2.7) node[anchor=north]{$E$};   
+        \draw (4.5,4) node[anchor=north]{$r$};
+        \draw (3.8,1.6) node[anchor=north]{$C$};
+        \draw (5.4,1.6) node[anchor=north]{$L$};
+        \draw (1.85,1.6) node[anchor=north]{1台目};
+        \draw (1.85,1.2) node[anchor=north]{OSC.};
+        \draw (1.85,0.8) node[anchor=north]{CH1};
+        \draw (0.9,2.45)--(1.3,2.7)--(1.3,2.5)--(1.5,2.6);
+      \end{circuitikz}
+      \caption{並列共振回路図} \label{fig:circui2}
+  \end{figure}
+
+  \begin{itemize}
+    \item [(1)]コイル$L$とコンデンサ$C$を図\ref{fig:circui2}のように並列に接続した。このとき、直列抵抗$r$は$r=\SI{10}{\kilo\ohm}$である。
+    \item [(2)]オシロスコープの電源を入れて、オシロスコープにプローブを差したのちに、プローブの調整を行った。
+    \item [(3)]1台目のオシロスコープのMEASURE表示をCH1:周波数、CH1:P-P値を表示させた。また、信号入力をACにした。
+    \item [(4)]発生器の電源を入れた。関数発生器を調整して、$\SI{9}{\kilo\hertz}$のときに1台目オシロスコープの$V_{pp}$が$\SI{2}{\volt}$になるように設定した。（以降、周波数を変えるたびに出力電圧が$\SI{2}{\volt}$になっていることを確認しながら進めた。）
+    \item [(5)]電子電圧計の電源を入れる。
+    \item [(6)]電子電圧計の$\si{V_1}$の振れが最小になる周波数を、関数発生器の周波数調整で行い、この時の周波数を共振周波数の測定値$f'_0$として、$V_1$,$V_2$,$f'_0$を記録した。
+    \item [(7)] 関数発生器の周波数を$\SI{9}{\kilo\hertz}$にもどし、$\SI{9}{\kilo\hertz}$から$\SI{12}{\kilo\hertz}$までを10点測定し、表に測定値を記録した。
+    \item [(8)]実験結果の測定値を用いて、$I-f$,$Z-f$,$Y-f$グラフを作成した。
+  \end{itemize}
+
+  \subsection{実験機器}
+  今回の実験で使用した機器を以下の表\ref{tab:使用機器}に示す。
+  \begin{table}[hbtp]
+    \caption{使用機器}\label{tab:使用機器}
+    \begin{center}
+      \scalebox{0.9}{
+      \begin{tabular}{|c|c|c|c|}
+        \hline
+                     使用機器               &       規格         &  物品管理番号 &   製造会社   \\
+        \hline
+        ディジタルストレージオシロスコープ（直列、並列）   &     TBS1022       &      3/25      &  Tektronix      \\
+        ディジタルストレージオシロスコープ（直列）   &     TBS1022       &      1/25     &  Tektronix     \\
+                    関数発生器          &     AD8623A        &     L06-000255   &     A\&D         \\
+               ２チャンネル電子電圧計             &      VT-186        &     L98-000365   &    KENWOOD        \\
+               ブレッドボード     &&&\\
+               抵抗体（$\SI{10}{\ohm} \times$１個、$\SI{10}{\kilo\ohm} \times$１個） &&&\\
+               コイル（$\SI{10}{\milli\henry} \times $１個）&&&\\
+               コンデンサ（$\SI{22}{\nano\farad} \times $１個）&&&\\
+        \hline  
+      \end{tabular}
+      }
+    \end{center}
+    \end{table}
+
+
+  \newpage
+  \section{実験結果}
+  今回の実験は２回に分けて実験をした。そのため、4.1では直列共振回路の実験結果、4.2では並列共振回路の実験結果を示す。
+  \subsection{直列共振回路の実験結果}
+  直列共振回路の実験では、「2台目OSC.CH1\&CH2」のオシロスコープの画面をUSBに保存した。図\ref{fig:seris-osc1}では周波数$f$が$\SI{8.96239}{\kilo\hertz}$の時、図\ref{fig:seris-osc2}では$\SI{10.5135}{\kilo\hertz}$の時、図\ref{fig:seris-osc3}では$\SI{11.9396}{\kilo\hertz}$の時のオシロスコープの画面である。また、これらの図の凡例にある「Math」は演算CH1-CH2 のことである。
+  \\\\
+    \begin{figure}[H]
+        \centering
+          \includegraphics[keepaspectratio,scale=0.35]{figure/osc_result/8.96kHz.pdf}
+          \caption{周波数$f$が$\SI{8.96239}{\kilo\hertz}$のときのオシロスコープ画面}\label{fig:seris-osc1}
+    \end{figure}
+    \newpage
+    \begin{figure}[H]
+        \centering
+          \includegraphics[keepaspectratio,scale=0.35]{figure/osc_result/10.5135kHz.pdf}
+          \caption{周波数$f$が$\SI{10.5135}{\kilo\hertz}$のときの直列共振回路のオシロスコープ画面}\label{fig:seris-osc2}
+    \end{figure}
+    \begin{figure}[H]
+      \centering
+        \includegraphics[keepaspectratio,scale=0.35]{figure/osc_result/11.9336kHz.pdf}
+        \caption{周波数$f$が$\SI{11.9396}{\kilo\hertz}$直列共振回路のオシロスコープ画面}\label{fig:seris-osc3}
+    \end{figure}
+
+    \newpage
+    次に、表\ref{tab:seris-tab}の上７個に直列共振回路の測定結果である周波数$f_1$、測定電圧$V_1V_2$と、オシロスコープの画面にある値を表に示す(備考欄は電子電圧計のレンジ)。また、上７個の測定値を用いて回路電流$I_1$、インピーダンス$Z_1$、アドミタンス$Y_1$を以下の式を用いて求めたものを表\ref{tab:seris-tab}下３つに示す。
+    \begin{equation}
+      I=\dfrac{V_1}{r}, \quad\quad Z=\dfrac{V_2}{I}, \quad\quad Y=\dfrac{1}{Z}
+    \end{equation}
+
+    \begin{table}[h]
+      \caption{直列共振回路の実験結果}\label{tab:seris-tab}
+      \begin{center}        
+        \scalebox{0.7}{
+          \begin{tabular}{|c|c|ccc|cc|ccccc|}
+              \hline
+                                &                    &           1           &           2        &         3                &             4          &          5              &             6            &           7           &           8           &           9           &           10          \\
+              \hline
+              周波数 &$f_1$/\si{\kilo\hertz}          &         9.350         &        9.540       &           9.880          &         10.10          &        10.40            &           10.80           &        11.00         &         11.21        &          11.50         &          11.88        \\ 
+              測定電圧   &$V_1$/\si{\milli\volt}        &         40.5          &         44.0       &            64.2          &         92.0           &          140            &          95.0             &          89.0        &          74.0        &          54.0          &          43.0         \\
+              測定電圧   &$V_2$/\si{\volt}               &         0.7           &         0.68       &           0.65           &           0.62         &          0.52           &           0.62            &           0.64       &          0.64        &           0.67         &          0.67         \\
+              CH1    &$V{pp}$/\si{\volt}            &        2.01           &        1.94        &           1.88          &            1.79         &          1.54           &           1.78            &           1.83       &         1.82         &           1.91         &          1.94         \\
+              Math   &$V{pp}$/\si{\volt}            &        7.28           &        8.60        &          12.1           &           18.0          &          27.6           &           20.2            &           19.2       &         16.2         &           12.0         &          9.52         \\
+              CH2    &$V{pp}$/\si{\volt}            &        9.12           &        10.2        &           13.8          &        19.4             &          27.6           &           18.8            &          17.6        &        14.4          &           10.2         &          7.76         \\
+              CH2位相&位相/$\circ$                  &        -10.8          &       -12.2       &          -19.6           &        -33.5             &          -90.8          &           -143            &         -147         &         -154         &           -160          &         -168          \\
+              \hline
+              回路電流      &$I_1$/\si{\milli\ampere} &         4.05           &        4.40        &          6.42           &          9.20           &          14.0           &          9.50             &        8.90         &          7.40        &            5.40         &         4.30          \\
+              インピーダンス&$Z_1$/\si{\ohm}          &       172.84          &      154.09     &         101.25         &        67.39          &          37.14         &           65.26         &        71.91        &        84.49      &         124.07        &           155.81      \\
+              アドミタンス  &$Y_1$/\si{\milli\siemens}&        5.786          &       6.490        &          9.877          &        14.839            &         26.923          &          15.323            &      13.906         &        11.563         &         8.060          &          6.418       \\
+              \hline
+              \multicolumn{2}{|c|}{備考欄}          & \multicolumn{3}{c|}{CH1:$\SI{100}{\milli\volt}$、CH2:$\SI{1}{\volt}$}&\multicolumn{2}{c|}{CH1:\SI{0.3}{\volt}}&\multicolumn{5}{c|}{CH1:\SI{100}{\milli\volt}}\\
+              \hline
+          \end{tabular}
+        }
+      \end{center}
+      \end{table}
+
+      次に、図\ref{fi\begin{table}[hbtp]
+        \caption{使用機器}
+        \centering
+          \begin{tabular}{|cccc|}
+            \hline
+                         使用機器               &       規格         &  シリアルナンバー &   製造会社   \\
+            \hline 
+            \hline
+            ディジタルストレージオシロスコープ   &     TBS1022       &      C013037      &  Tektronix    \\
+                         発振器                 &     AG-205        &     18080358      &   TEXIO        \\
+                      ブレッドボード            &     SRH-21B       &                   &  Sunhayato     \\
+                         抵抗体                 & \SI{1}{\kilo\ohm} &                   &                \\
+            \hline  
+          \end{tabular}
+      \end{table}g:I-f_figure}～\ref{fig:Y-f_figure}は表\ref{tab:seris-tab}の回路電流$I_1$、インピーダンス$Z_1$、アドミタンス$Y_1$の値をそれぞれ周波数との特性を示すグラフである。
+      \begin{figure}[H]
+        \begin{minipage}[H]{0.5\linewidth}   
+          \centering
+            \includegraphics[keepaspectratio,scale=0.3]{figure/I-f特性.pdf}
+            \caption{直列共振回路の$I-f$特性}\label{fig:I-f_figure}
+        \end{minipage}
+        \begin{minipage}[H]{0.5\linewidth}          
+          \centering
+            \includegraphics[keepaspectratio,scale=0.3]{figure/Z-f特性.pdf}
+            \caption{直列共振回路の$Z-f$特性}\label{fig:Z-f_figure}
+        \end{minipage}
+      \end{figure}
+      \begin{figure}[H]
+        \centering
+          \includegraphics[keepaspectratio,scale=0.3]{figure/Y-f特性.pdf}
+          \caption{直列共振回路の$Y-f$特性}\label{fig:Y-f_figure}
+      \end{figure}
+
+      以下に、直列共振回路の実験結果から読み取れることを示す。
+      \begin{itemize}
+        \item 表\ref{tab:seris-tab}より、周波数$f_1$が共振周波数$f'_0$$(\SI{10.51}{\kilo\hertz})$に近づくにつれて抵抗$r$のみを測っている測定電圧$V_1$の値がだんだん大きくなり、共振周波数$f'_0$を超えた後はだんだん小さくなる。また、直列に接続されたインダクタンス$L$とキャパシタンス$C$間の測定電圧$V_2$では共振周波数$f'_0$に近づくとだんだん小さくなり、共振周波数$f'_0$を超えるとだんだん大きくなる。
+        \item 図\ref{fig:I-f_figure}～\ref{fig:Y-f_figure}より回路電流$I$とアドミタンス$Y$は上に凸の放物線のような形で、インピーダンス$Z$は下に凸の放物線のような形になっている。
+        \item 図\ref{fig:seris-osc2}は回路が共振しているときのオシロスコープの画面である。共振しているときは、2.原理より式(2.2)の$\omega L-1 / \omega C$が０になるので実部の抵抗$R$のみが残る。このことから、位相が０に限りなく近づくはずなのにもかかわらずオシロスコープの画面では「-107」という値が表示されている。
+      \end{itemize}
+
+      最後にコイルの選択度$Q_1$と$I-f$特性から求める回路の選択度$Q_2$、回路電圧から求める選択度$Q_3$をそれぞれ(1)～(3)で求める。\\
+
+      (1)選択度$Q_1$を求める\\
+      最初に、以下のようにして共振電流$I_0$を求める。ここで$V'_1$は共振時の電圧$V_1$、$r$は抵抗（$\SI{10}{\ohm}$）である。
+      \begin{equation}
+        I_0=\dfrac{V'_1}{r}=\dfrac{0.14}{10}=0.014
+      \end{equation}
+      次に、先ほど求めた共振電流$I_0$を用いて以下の式から共振インピーダンス$Z_0$を求める。ここで、$V'_2$は共振時の電圧$V_2$である。
+      \begin{equation}
+        Z_0=\dfrac{V'_2}{I_0}=\dfrac{0.55}{0.014}=39.29
+      \end{equation}
+      次に、測定した共振周波数$f'_0$の値を用いて、以下のように共振角周波数$\omega'_0$を求める。
+      \begin{equation}
+        \begin{split}
+          & \omega'_0=2 \pi f'_0 = 66036
+        \end{split}
+      \end{equation}
+      式(4.3)と(4.4)、インダクタンスは実験で使用した$\SI{10}{\milli\henry}$を用いて、選択度$Q_1$は以下のように求めれる。
+      \begin{equation}
+        Q_1=\dfrac{\omega'_0L}{Z_0}=\dfrac{66036 \times 10 \times 10^{-3}}{39.29}=16.81
+      \end{equation}
+      \\
+      (2)$I-f$特性から求める回路の選択度$Q_2$を求める。\\
+      直列の$I-f$特性のグラフにおいて共振（角）周波数を基準にしたとき、この基準より左側のところで放物線とぶつかるところをｘ軸の値$\omega'_1$とし、右側のところで放物線とぶつかるところをｘ軸の値$\omega'_2$とする。このとき、共振電流$I_0$に$\dfrac{1}{\sqrt{2}}$を掛けたところの軸では$\omega'_1$と$\omega'_2$の差は等しくなる（この差を$\Delta\omega$とする。また、$\omega_2 > \omega_1$とする。）。次に$I_0\dfrac{1}{\sqrt{2}}$のところのインピーダンスは$Z=\dfrac{V}{I}$より以下のようになる。
+      \begin{equation}
+        Z=\sqrt{2}R
+      \end{equation}
+      共振時はインピーダンス$Z$の虚数部が０になるため、以下のようになる。
+      \begin{equation}
+        \omega L-\dfrac{1}{\omega C}=0
+      \end{equation}
+      よって、共振インピーダンス$Z$は以下のようになる。
+      \begin{equation}
+        Z=R
+      \end{equation}
+      次に、合成インピーダンスを求める。合成インピーダンスは以下の式から求めることができる。
+      \begin{equation}
+        \vec{Z}=|\vec{Z}|=\sqrt{R^2 + (\omega L - \dfrac{1}{\omega C})^2}
+      \end{equation}
+      式(4.6)と(4.9)より、以下のような式が成り立つ。
+      \begin{equation}
+        \sqrt{2}R=\sqrt{R^2 + (\omega L - \dfrac{1}{\omega C})^2}=\sqrt{R^2 + R^2}
+      \end{equation}
+      式(4.10)より、$\sqrt{R^2 + R^2}$の左側の$R^2$は$合成インピーダンス$Z$の(\omega L - \dfrac{1}{\omega C})^2$に当たるため、以下のような式が成り立つ。
+      \begin{equation}
+        \begin{split}
+          &(\omega L - \dfrac{1}{\omega C})^2=R^2\\
+          &\omega L - \dfrac{1}{\omega C}=\pm R
+        \end{split}
+      \end{equation}
+      次に式(4.11)に$\omega C$をかけて、分母を消すようにすると、
+      \begin{equation}
+        \begin{split}
+          &\omega L - \dfrac{1}{\omega C}=\pm R\\
+          &LC \omega^2 \mp RC \omega -1=0
+        \end{split}
+      \end{equation}
+      が成り立つ。式(4.12)より解の公式を用いて$\omega$について解くと以下のようになる。（$\sqrt{}$が負の値だと、角周波数が正の値しか持たないにもかかわらず、負の値になってしまう可能性があるので、正になる。）
+      \begin{equation}
+        \omega = \dfrac{\mp RC + \sqrt{(RC)^2 + 4 LC}}{2LC}
+      \end{equation}
+      次に式(4.13)と$\omega=2 \pi f$より、正$RC$の時の$f_2$と、負$RC$の時の$f_1$を求める。。
+      \begin{equation}
+        \begin{split}
+          &f_2=\dfrac{10 \times 22 \times 10^{-9} + \sqrt{(10 \times 22 \times 10^{-9})^2 + 4 \times 10 \times 10^{-3} \times 22 \times 10^{-9}}}{4 \pi \times 10 \times 10^{-3} \times 22 \times 10^{-9}}=10810\\
+          &f_1=\dfrac{-10 \times 22 \times 10^{-9} + \sqrt{(10 \times 22 \times 10^{-9})^2 + 4 \times 10 \times 10^{-3} \times 22 \times 10^{-9}}}{4 \pi \times 10 \times 10^{-3} \times 22 \times 10^{-9}}=10650
+        \end{split}
+      \end{equation}
+      次に、$f_2$と$f_1$の差分$\Delta f$を求める。
+      \begin{eqnarray}
+        \begin{split}
+          \Delta f= f_2 - f_1 =160
+        \end{split}
+      \end{eqnarray}
+      次に指導書を参考に選択度$Q_2$を求める式は以下のようになる。
+      \begin{equation}
+        \begin{split}
+          &Q_2=\dfrac{f_0}{\Delta f}=\dfrac{10510}{160}=65.69
+        \end{split}
+      \end{equation}\\
+      (3)回路電圧からも求める選択度$Q_3$の求め方\\
+      $Q_1$は指導書より以下のようにして求めることができる。
+      \begin{equation}
+        Q_3=\dfrac{V_L}{V_r}
+      \end{equation}
+      式(4.17)の$V_r$は抵抗$r$にかかる電圧である（図\ref{fig:circui1}より$V_r$は$V_1$のことであるため、$V_r$は$\SI{0.14}{\volt}$である）。また、$V_L$はインダクタンスにかかる電圧である。次に、$V_L$を式(2.4)を使って式変形し、式(4.17)に代入すると、
+      \begin{equation}
+        Q_3=\dfrac{\omega_0 L  I}{V_r}
+      \end{equation}
+      次に、$\omega_0$は$\omega=2 \pi f$から求めることができるので、式変形したのちに値を入れて計算すると、
+      \begin{equation}
+        \begin{split}
+          &Q_3=\dfrac{2 \pi f_0 L  I}{V_r}\\
+          &=\dfrac{2 \pi \times 10510 \times 10 \times 10^{-3} \times 0.014}{0.14}=66.04
+        \end{split}
+      \end{equation}
+      \\
+      最後に、選択度$Q_1Q_2Q_3$の計算結果を比較する。$Q_2$は「65.69」で、$Q_3$は「66.04」である。（$Q_3$は$Q_2$に比べて、計算結果を丸める回数が少ないということから値がわずかに異なっていることが考えられる。そのため、ほぼ同じとみなす）そして、$Q_1$のみ「16.81」であってかなり数値が離れている。これは、$Q_2Q_3$は抵抗$r$の部分で計算していて、$Q_1$はインダクタンスやキャパシタンスの部分も含めて計算しているからと考える。
+  \subsection{並列共振回路の実験結果}
+  次に、表\ref{tab:seris-tab2}の上3個に並列共振回路の測定結果である周波数$f_2$と測定電圧$V_1V_2$を示す(備考欄は電子電圧計のレンジ)。また、上3個の測定値を用いて回路電流$I_2$、インピーダンス$Z_2$、アドミタンス$Y_2$を式(4.1)を用いて求めたものを表\ref{tab:seris-tab2}下３つに示す。
+  \begin{table}[H]
+    \caption{並列共振回路の実験結果}\label{tab:seris-tab2}
+    \begin{center}        
+      \scalebox{0.7}{
+        \begin{tabular}{|c|c|cccccccccc|}
+            \hline
+                              &                    &           1            &           2        &         3          &         4             &             5          &          6           &             7            &           8       &           9        &           10          \\
+            \hline
+            周波数 &$f_2$/\si{\kilo\hertz}          &         9.017         &        9.310       &        9.625       &         9.935         &         10.20          &        10.52         &           10.88          &        11.11      &         11.47      &          11.90        \\ 
+            測定電圧   &$V_1$/\si{\volt}                &         0.64          &        0.62        &        0.58        &         0.50          &         0.37           &        0.21          &           0.36           &        0.46       &         0.54       &          0.58         \\
+            測定電圧   &$V_2$/\si{\volt}                &         0.16          &        0.19        &        0.24        &         0.32          &         0.38           &        0.41          &           0.34           &        0.30       &         0.22       &          0.18         \\
+            \hline
+            回路電流      &$I_2$/\si{\micro\ampere} &         64            &        62          &        58          &         50            &          37            &        21            &           36             &        46         &         54         &          58           \\
+            インピーダンス&$Z_2$/\si{\kilo\ohm}     &         2.5           &        3.1         &        4.1         &         6.4           &         10.3           &        19.5          &           9.4            &        6.5        &         4.1        &          3.1          \\
+            アドミタンス  &$Y_2$/\si{\milli\siemens} &         0.40          &        0.33        &        0.24        &         0.16          &         0.10           &        0.05          &           0.11           &        0.15       &         0.25       &          0.32         \\
+            \hline
+            \multicolumn{2}{|c|}{備考欄}            & \multicolumn{10}{c|}{CH1:$\SI{0.3}{\volt}$、CH2:$\SI{0.3}{\volt}$}\\
+            \hline
+        \end{tabular}
+      }
+    \end{center}
+    次に、図\ref{fig:I-f_figure2}～\ref{fig:Y-f_figure2} は表\ref{tab:seris-tab2}の回路電流$I_2$、インピーダンス$Z_2$、アドミタンス$Y_2$ の値をそれぞれ周波数との特性を示すグラフである。
+    
+    \end{table}
+    \begin{figure}[H]
+      \begin{minipage}[H]{0.5\linewidth}
+        \centering
+          \includegraphics[keepaspectratio,scale=0.3]{figure/I-f特性２.pdf}
+          \caption{並列共振回路の$I-f$特性}\label{fig:I-f_figure2}
+      \end{minipage}
+      \begin{minipage}[H]{0.5\linewidth}        
+        \centering
+          \includegraphics[keepaspectratio,scale=0.3]{figure/Z-f特性2.pdf}
+          \caption{並列共振回路の$Z-f$特性}\label{fig:Z-f_figure2}
+      \end{minipage}
+  \end{figure}
+  \begin{figure}[H]
+    \centering
+      \includegraphics[keepaspectratio,scale=0.3]{figure/Y-f特性２.pdf}
+      \caption{並列共振回路の$Y-f$特性}\label{fig:Y-f_figure2}
+  \end{figure}
+
+  以下に、並列共振回路の実験結果から読み取れることを示す。
+  \begin{itemize}
+    \item 表\ref{tab:seris-tab2}より、周波数$f_2$が共振周波数$f'_0$（$\SI{10.53}{\kilo\hertz}$）に近づくにつれて測定電圧$V_1$はだんだん小さくなり、共振周波数$f'_0$を超えた後はだんだん大きくなる。また、測定電圧$V_2$は共振周波数$f'_0$に近づくつれてだんだん大きくなり、共振周波数$f'_0$を超えるとだんだん小さくなる。
+    \item 図\ref{fig:I-f_figure2}～\ref{fig:Y-f_figure2}より、回路電流$I$とアドミタンス$Y$は下に凸の放物線のような形で、インピーダンス$Z$は上に凸の放物線のような形になっている。
+  \end{itemize}
+
+  次に、コイルの選択度$Q_1$と$I-f$特性から求める回路の選択度$Q_2$を求める。
+  \begin{itemize}
+    \item [(1)]コイルの選択度$Q_1$を求める\\コイルの選択度$Q_1$は以下の式から求めることができる。また、$I_0$は式(4.2)を使って求める。
+    \begin{equation}
+      \begin{split}
+        &I_0=\dfrac{V_1}{r}=\dfrac{0.21}{10000}=2.1 \times 10^{-5}\\
+        &R_{cp}=\dfrac{V_2}{I_0}=\dfrac{0.41}{2.1 \times 10^{-5}}=19524\\
+        &Q_1=\dfrac{R_{cp}}{\omega'_0 L}=\dfrac{R_{cp}}{2 \pi f'_0 L}=\dfrac{19524}{2 \pi \times 10530 \times 10 \times 10^{-3}}=29.51\\
+      \end{split}
+    \end{equation}
+    \item [(2)]$I-f$特性から求める回路の選択度$Q_2$を求める\\並列共振回路では$I-f$特性のグラフで$I_0 \times \sqrt{2}$したところのｙ軸が放物線とぶつかったところを、共振（角）周波数を基準にしたときに、左側を$\omega_1$で右側を$\omega_2$とする。\\最初に、$\sqrt{2}I_0$のときのアドミタンス$Y$（$Y=\dfrac{1}{Z}$）を以下の通りである。
+    \begin{equation}
+      Y=\sqrt{2}R
+    \end{equation}
+    次に、合成アドミタンスは以下の式から求めることができる。
+    \begin{equation}
+      \begin{split}
+        &\vec{Y}=\dfrac{1}{R} + \dfrac{1}{j \omega L} + \dfrac{1}{\dfrac{1}{j \omega C}}\\
+        &=\dfrac{1}{R} + j(\omega C - \dfrac{1}{\omega L})
+      \end{split}
+    \end{equation}
+    次に、合成アドミタンスの距離を求める。
+    \begin{equation}
+      \begin{split}
+        &\vec{Y}=|\vec{Y}|=\sqrt{(\dfrac{1}{R})^2 + (\omega C - \dfrac{1}{\omega L})^2}\\
+      \end{split}
+    \end{equation}
+    式(4.21)と式(4.23)より、以下のような式が成り立つ。
+    \begin{equation}
+      \begin{split}
+        &Y=\dfrac{\sqrt{2}}{R}=\sqrt{(\dfrac{1}{R})^2 + (\omega C - \dfrac{1}{\omega L})^2}\\
+        &\dfrac{\sqrt{2}}{R}=\sqrt{\dfrac{1}{R^2} + \dfrac{1}{R^2}}\\
+      \end{split}
+    \end{equation}
+    式(4.24)より、$\sqrt{\dfrac{1}{R^2} + \dfrac{1}{R^2}}$の右側の$ \dfrac{1}{R^2}$は式(4.22)より以下のようになる。（このとき、$\dfrac{1}{R}$は実数部なので除外する）
+    \begin{equation}
+      \begin{split}
+        &(\omega C - \dfrac{1}{\omega L})^2=\dfrac{1}{R^2}\\
+        &\omega C - \dfrac{1}{\omega L}=\pm \dfrac{1}{R}
+      \end{split}
+    \end{equation}
+    解の公式を用いて、式(4.25)を$\omega$について解くと、（$\sqrt{}$が負の値だと、角周波数が正の値しか持たないにもかかわらず、負の値になってしまう可能性があるので、正になる。）
+    \begin{equation}
+      \begin{split}        
+        &LC \omega^2 \mp \dfrac{\omega L }{R} - 1 = 0\\
+        &\omega =\dfrac{\mp \dfrac{L}{R} + \sqrt{(\dfrac{L}{R})^2 + 4LC}}{2LC}
+      \end{split}
+    \end{equation}
+    次に、式(4.26)と$\omega = 2 \pi f$の式を用いると、以下の式が成り立つ。ここで、正$1/RC$の時の$f_2$と、負$1/RC$の時の$f_1$を求める。ここで、$f_2 > f_1$とする。
+    \begin{equation}
+      \begin{split}
+        f_2=\dfrac{\dfrac{L}{R} + \sqrt{(\dfrac{L}{R})^2 + 4LC}}{4 \pi LC}=11.10 \times 10^3\\
+        f_1=\dfrac{-\dfrac{L}{R} + \sqrt{(\dfrac{L}{R})^2 + 4LC}}{4 \pi LC}=10.37 \times 10^3
+      \end{split}
+    \end{equation}
+    選択度$Q_2$は以下のような式が成り立つ。
+    \begin{equation}
+      Q_2=\dfrac{f_0}{\Delta f}=\dfrac{f_0}{f_2 - f_1}=\dfrac{10.53 \times 10^3}{11.10 \times 10^3 - 10.37 \times 10^3}=14.42
+    \end{equation}
+  \end{itemize}
+
+  \newpage
+  \section{考察}
+  今回の実験の考察は１２個あり、それを(1)～(12)として示す。
+  \begin{itemize}
+    \item [(1)]直列共振回路の共振インピーダンスについて検討せよ。\\
+    インピーダンス$Z$は以下のような式から求めることができる。
+    \begin{equation}
+      Z_0=\dfrac{V_2}{I}
+    \end{equation}
+    次に、式(5.1)の$I$を求めるために、共振時の電流を求める。
+    \begin{equation}
+      I_0=\dfrac{V_1}{r}
+    \end{equation}
+    式(5.1)と(5.2)より、式変形して共振インピーダンスを求める。ここで、$V_1V_2$はそれぞれ共振時の電圧値で、抵抗$r$は直列共振回路の実験で用いた$\SI{10}{\ohm}$の値を使う。
+    \begin{equation}
+      \begin{split}
+        &Z_0=\dfrac{V_2}{\dfrac{V_1}{r}}\\
+        &=\dfrac{0.55}{\dfrac{0.14}{10}}\\
+        &=39.29
+      \end{split}
+    \end{equation}
+    次に、図4.5と表4.1と式(5.3)の計算結果を比較すると、周波数をだんだん大きくするとインピーダンスが低くなっていき37.14になり、共振時のインピーダンス(39.29)を境に155.81と高くなっていく。次に共振時のインピーダンスについて考える。参考文献の[1]よりRLC直列回路が共振するときは、式(2.2)の$\omega L-1/\omega C$は０になる。そのため$Z=R$が成り立つ。これらのことから、直列共振回路のインピーダンスで共振するときの抵抗が最も小さくなるため、オームの法則より電流は抵抗に反比例して大きくなることから、共振時は電流が最も流れる。これは表(4.1)の周波数$f$が10.40のとき（共振周波数に最も近いため）は電流が14.0と一番流れているため、正しいと考えられる。\\よって、直列の共振インピーダンスはインピーダンス（抵抗）が最も大きくなるとき、その回路で最も電流が流れると考える。
+    \item [(2)]コイルの$Q$の定義を書け（式(2.5)より導出せよ）。\\それぞれの選択度$Q$は実験結果に含める
+    \item [(3)]$Q$は何の意味するか[2]\\選択度$Q$は原理にあるように、コイルやコンデンサの良さを測る量である。これは式(4.18)のように共振周波数のところでどのくらい尖がるかを$Q$は示していることになる。このことから、$Q$が大きくなるほど山の形がより尖がった概形（$\Delta\omega$が狭い）になり、尖がった概形になるほど、共振時において電流が流れやすくなることから損失が少なるということが考えられる。要するに、$Q$の値が大きいほど損失が少なくなる（コイルやコンデンサが良くなる）ということが考えられる。
+    \item [(4)]直列共振回路の特徴・性格を述べよ。\\直列共振回路ではリアクション部分が０になり、$Z=R$となる。要するに、
+    \begin{equation}
+      \omega L=\dfrac{1}{\omega C}
+    \end{equation}
+    という特徴があると言える。また、図(4.1)～(4.3)より$\SI{8}{\kilo\hertz}$のときと$\SI{12}{\kilo\hertz}$のP-P値は$\SI{6.72}{V}$と$\SI{7.20}{V}$であるが、共振時のP-P値は$\SI{26.8}{V}$であって、共振時は電圧が高くなるという特性がある。
+    \item [(5)]直列共振回路において測定したコイルの$Q$と回路全体の$Q$の結果を比較検討せよ。\\実験結果に含める。
+    \item [(6)]直列共振時のコイルとコンデンサの端子電圧の測定結果を検討せよ。\\最初に、直列共振時のコイルとコンデンサの端子電圧を求める。これは原理の式(2.4)から以下のように求めることができる。ここで、$X_L$はコイルのリアクタンスで、$f_0$は直列共振周波数（$\SI{10.51}{\kilo\hertz}$）である。
+    \begin{equation}
+      \begin{split}
+        &V_L=X_LI\\
+        &=\omega_0L \dfrac{V_1}{r}\\
+        &=2 \pi f_0 L \dfrac{V_1}{r}\\
+        &=2 \pi \times 10510 \times 10 \times 10^{-3} \dfrac{0.14}{10}\\
+        &=9.2
+      \end{split}
+    \end{equation}
+    次に、コンデンサの端子電圧を求める。オームの法則より（$V=RI$）式(5.5)のように求めることができる。
+    \begin{equation}
+      \begin{split}
+        &V=X_CI\\
+        &=\dfrac{1}{\omega_0C}I\\
+        &=\dfrac{\dfrac{V_1}{r}}{2 \pi f_0 C}\\
+        &=\dfrac{V_1}{2 \pi f_0 C r}\\
+        &=\dfrac{0.14}{2 \pi \times 10510 \times 22 \times 10^{-9} \times 10}\\
+        &=9.6
+      \end{split}
+    \end{equation}
+    これらのことから、コイルの端子電圧が$\SI{9.2}{V}$でコンデンサの端子電圧$\SI{9.6}{V}$であって値が$\SI{0.4}{V}$異なっている。しかし、直列共振時は図のようにリアクタンス同士が打ち消いしあうので、同じ値にならなければいけない。今回の実験では、後述しているようにオシロスコープのプローブを多く使用しているため、様々な場所で接触抵抗や接触不良が起きていることから電圧$V$の値が異なることが考えられる。
+    \item [(7)]直列共振の$I-f$特性からわかったことを述べよ。\\実験結果に含める。
+    \item [(8)]計算で求めた共振周波数の値と実験で測定した共振周波数の値を書き、比較・検討せよ。\\
+    最初に、計算して共振周波数を求める。共振周波数を求める式(2.3)を用いて計算する。ここで、インダクタンス$L$とコンデンサ$C$は表(3.1)にあるように実験で用いた物を使って計算する。
+    \begin{equation}
+      \begin{split}
+        &f_0=\dfrac{1}{2 \pi \sqrt{LC}}\\
+        &=\dfrac{1}{2 \pi \sqrt{10 \times 10^{-3} \times 22 \times 10^{-9}}}\\
+        &=10730.22
+      \end{split}
+    \end{equation}
+    よって、計算で求めた共振周波数$f$は$\SI{10.73}{\kilo\hertz}$である。また、直列共振の周波数$f'_0$は測定結果より$\SI{10.51}{\kilo\hertz}$で、また、並列共振の周波数$f''_0$は$\SI{10.53}{\kilo\hertz}$であった。これらの値から、概ね数値が同じなためこの実験は成功したと考えられる。
+    \item [(9)]並列共振の$I-f$特性からっわかったことを述べよ。\\実験結果に含める。
+    \item[(10)]直列共振回路と並列共振回路の$I-f$特性を比較して検討せよ。直列共振回路の図\ref{fig:I-f_figure}と並列共振回路の図\ref{fig:I-f_figure2}を最初に概形を比較すると、上に凸の放物線と下に凸の放物線のように反対の関係である。次に、表(4.1)と表(4.2)の測定電圧$V_1$を比較する。オームの法則より電圧が高くなると比例して電流も高くなる。また、電圧は並列より直列のほうが電圧が高くなるので（直列は単純に$R$のみかかり並列は$\dfrac{1}{R}$であるため。）、直列の電圧が高かくなれば直流の電流も比例して高くなり、並列では電圧が低くなると比例して並列の電流は低くなる。よって、このような特性の違いを持っていると考えられる。
+    \item[(11)]共振時のコイルのリアクタンス及びコンデンサのリアクタンスを計算せよ。\\
+    RLC直列回路の共振時の両方のリアクタンスを求める。\\式(2.3)より共振角周波数は以下のようになる。
+    \begin{equation}
+      \omega_0=\dfrac{1}{\sqrt{LC}}
+    \end{equation}
+    次に、参考文献の[4]よりコイルのリアクタンスは以下の式から求めることができる。
+    \begin{equation}
+      X_L=\omega L
+    \end{equation}
+    式(5.4)を式(5.5)に代入して実際に数値を入れて計算すると、
+    \begin{equation}
+      \begin{split}
+        &X_L=\omega L\\
+        &=\dfrac{1}{\sqrt{LC}} L\\
+        &=\dfrac{1}{\sqrt{10 \times 10^{-3} \times 22 \times 10^{-9}}} \times 10 \times 10^{-3}\\
+        &=674.20
+      \end{split}
+    \end{equation}
+    となる。次に、コンデンサのリアクタンスは以下の式から求めることができる。
+    \begin{equation}
+      X_C=\dfrac{1}{\omega C}
+    \end{equation}
+    式(5.4)を式(5.6)に代入して実際に数値を入れて計算すると、
+    \begin{equation}
+      \begin{split}
+        &X_C=\dfrac{1}{\omega C}\\
+        &=\dfrac{1}{\dfrac{1}{\sqrt{LC}}C}\\
+        &=\dfrac{\sqrt{LC}}{C}\\
+        &=\dfrac{\sqrt{10 \times 10^{-3} \times 22 \times 10^{-9}}}{22 \times 10^{-9}}\\
+        &=674.20
+      \end{split}
+    \end{equation}
+    式(5.6)と(5.8)の計算結果よりどちらも同じ値である。原理より共振時はリアクタンスは０になるため、この計算結果からも共振していることもわかる。また、RLC並列回路でも原理より共振角周波数を直列と求め方が同じであるため、同様のことが言えると考えられる。
+
+    \item[(12)]共振回路は、どんなところに応用されているか調べてみよ。\cite{References3}\\共振回路の応用場所として、ラジオやテレビ等の希望の放送局からの電波を受信するために受信周波数を選択する（可変コンデンサを使って）ようなところで使われている。以下にその簡単な回路図を示す。
+    \begin{figure}[H]
+      \centering
+      \begin{circuitikz}
+        \draw(0,0)--(0.3,0)--(0.15,-0.3)--cycle;
+        \draw(0.15,-0.3)
+          to[L](0.15,-4);
+        \draw (0.15,-4) to (0.15,-4) node[cground]{};
+        \draw(2,-1)
+          to[L](2,-3);
+        \draw (2,-3) to (2,-4) node[cground]{}; 
+        \draw(2,-1)
+          to[short](7,-1);
+        \fill [black] (4,-1) circle (0.06);
+        \draw (7,-1) circle (0.06);
+        \draw(4,-1)
+          to[variable capacitor](4,-4)
+          to[short](2,-4);
+        \draw(4,-4)
+          to[short](7,-4)
+          to[short](7,-3);
+          \draw (7,-3) circle (0.06);
+        \fill [black] (4,-4) circle (0.06);
+        \fill [black] (2,-4) circle (0.06);
+        \draw[->](7,-2.9)--(7,-1.1);
+        \draw[<->](0.1,-1.3)--(2,-1.3);
+        \draw (7.2,-1.8) node[anchor=north]{$v_c$};
+        \draw (5,-2.3) node[anchor=north]{$C$};
+        \draw (1,-0.7) node[anchor=north]{M};
+        \draw (0.2,0.5) node[anchor=north]{アンテナ};
+      \end{circuitikz}
+    \end{figure} 
+  \end{itemize}
+
+  \newpage
+  \section{まとめ}
+  今回の目的「交流の直列並列共振回路を実験で測定して共振について理解する」は達成できたと思う。しかし今回の実験では、1回目の直列共振回路の実験の時に、共振しているときの電圧$V'_2$の記録をし忘れたことにより、２回目の並列共振回路の実験で回路を組みなおして測定することになってしまい時間がかかりすぎてしまった。このようなことから、次回以降はもっと指導書を読みその実験では何を測定するのかを理解したうえで実験に取り組みたいと思います。
+
+  \begin{thebibliography}{99}
+    \bibitem [1]{References1} 曽根　悟・壇　良、電気回路の基礎、(株)昭晃堂、2005.2.20、P68
+    \bibitem [2]{References2} 小澤　考夫、電気回路[1]ー基礎・交流編－、(株)昭晃堂、1988.3.30、P59
+    \bibitem [3]{References3} 小郷 寛　原著、小亀 英己   石亀 篤司　著 、基礎からの交流理論、社団法人電気学会、2002.3、3.6 直列共振.
+    \bibitem [4]{References4} 山下　明　著、文系でもわかる電気回路　第2版、(株)国宝社、2020.2.5、P142
+    
+    \end{thebibliography}
+
+\end{document}

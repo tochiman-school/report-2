@@ -1,0 +1,372 @@
+\documentclass[10pt,a4paper]{jsarticle}
+
+\usepackage[top=2cm, bottom=2cm, left=2cm, right=1cm]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage[dvipdfmx]{graphicx}
+\usepackage{float}
+\usepackage{tikz}
+\usepackage{circuitikz}
+\usepackage{siunitx}
+\usepackage{at}
+\usepackage{comment}
+\usepackage[hang,small,bf]{caption}
+\usepackage[subrefformat=parens]{subcaption}
+
+\usetikzlibrary{patterns}
+
+\captionsetup{compatibility=false}
+
+\usetikzlibrary{intersections,calc,arrows.meta}
+
+\numberwithin{equation}{section}
+\numberwithin{figure}{section}
+\numberwithin{table}{section}
+
+\pagestyle{empty}
+
+\newcommand{\ctext}[1]{\raise0.2ex\hbox{\textcircled{\scriptsize{#1}}}}
+
+\begin{document}
+\section{目的}
+  RLC回路をディジタルオシロスコープより測定し、そこから有効電力と力率を理解することを目的とする。
+\section{原理}
+  負荷電圧、電流の瞬時値を$\vec{e}$,$\vec{i}$とすれば、負荷に消費される瞬時電力$\vec{p}$は次式のようになる。
+  \begin{equation}
+    \vec{p} = \vec{e} \times \vec{i}\label{eq:pei}
+  \end{equation}
+  直流電力は、直流回路の負荷を$R$、負荷電圧$\vec{e}=E$、電流$\vec{i}=I$瞬時電力$\vec{p}$と直流電力$P_{dc}\:$Wは同じで、次式のようになる。
+  \begin{equation}
+    P_{dc}=E \times I
+  \end{equation}
+  交流電力は、交流回路での負荷がインピーダンス$\vec{Z}=R \pm jX$っで表される。ただし$R$は抵抗分、$X$はリアクタンス分を表し、位相角$\theta$とすれば、$\tan\theta = X/R$である。負荷電圧$\vec{e}=\sqrt{2}E\sin\omega t$ならば$\vec{i}=\sqrt{2}I\sin(\omega t \pm \theta)$となるので瞬時電力$\vec{p}$は次のようになる。
+  \begin{equation}
+    \begin{split}
+      \vec{p} &= \vec{e} \times \vec{i}=2 EI \sin \omega t \sin(\omega t \pm \theta)
+    \end{split}\label{eq:cos}
+  \end{equation}
+  式(\ref{eq:cos})を、加法定理より求めることができる式(\ref{eq:積和})の積和の公式を用いて式変形を行う。
+  \begin{equation}
+    2EI\sin \alpha \sin \beta = -EI\{\cos(\alpha + \beta) - \cos(\alpha - \beta)\}\label{eq:積和}
+  \end{equation}
+  式(\ref{eq:cos})を式(\ref{eq:積和})に適応するために、
+  \begin{equation}
+    \begin{split}
+      &\alpha = \omega t\\
+      &\beta =\omega t \pm \theta\label{eq:関係式}
+    \end{split}
+  \end{equation}
+  とする。式(\ref{eq:関係式})を式(\ref{eq:積和})適応すると、
+  \begin{equation}
+    \begin{split}
+      &-EI\{\cos(\omega t  + \omega t \pm \theta ) - \cos(\omega t  - (\omega t \pm \theta))\} \\
+      &=EI\cos\theta - EI(\cos 2\omega t \pm \theta)
+    \end{split}
+  \end{equation}
+  となる。
+  式\ref{eq:cos}において、右辺第１項は時間$t$に関係なく一定であり、第2項は２倍の周波数の正弦波的に変化する。図\ref{fig:交流波形}にこれらを示す。式\ref{eq:cos}で$\cos\theta$を力率と呼び、次の式で表される。
+  \begin{equation}
+    \cos\theta = \dfrac{R}{Z}=\dfrac{R}{\sqrt{R^2 + X^2}}\label{eq:力率}
+  \end{equation}
+  \begin{figure}[H]
+    \begin{center}
+      \begin{circuitikz}[scale=1,samples=100]
+        % xy軸
+        \draw (0,-8) -- (0,3);
+        \draw [->](0,0) node[left] {$0$} -- +(8.5,0)node[right]{$\omega t$};
+        \draw [->](0,-3) node[left] {$0$} -- (8.5,-3)node[right]{$\omega t$};
+        \draw [->](0,-6) node[left] {$0$} -- (8.5,-6)node[right]{$\omega t$};
+        % (a)のp部分
+        \draw[very thick,domain=0:7.5] plot(\x,{1.5 * cos(7 r) - 1.5 * cos((\x * 2  -1 - 7) r)});
+        \fill[pattern=north east lines] plot[samples=100,domain=0:7.5](\x,{1.5 * cos(7 r) - 1.5 * cos((\x * 2 -1 - 7) r)}) -- (0,0) --cycle;
+        % (a)のe部分
+        \draw[thick,domain=0:7.5] plot(\x,{1.5* sin((\x -0.5) r)});
+        % (a)のi部分
+        \draw[thin,domain=0:7.5] plot(\x,{sin((\x -0.5 - 7) r)});
+        % (b)
+        \draw[thick,domain=0:7.5] plot(\x,{1.5 * cos(7 r) -3});
+        \fill[pattern=north east lines] plot[samples=100,domain=0:7.5](0,-3) rectangle (7.5,{1.5 * cos(7 r) -3});
+        % (c)
+        \draw[thick,domain=0:7.93] plot(\x,{1.5 * cos((\x * 2  -1 - 7) r) -6});        
+        \fill[pattern=north east lines] plot[samples=100,domain=0:7.93](\x,{1.5 * cos((\x * 2  -1 - 7) r) -6})--(0,-6)--cycle;
+        % 補足
+        \draw[dashed,domain=0:7.5] plot(\x,{1.5 * cos(7 r)});
+        \draw[<->](7.5,0)--node[right]{$EI\cos\theta$}(7.5,{1.5 * cos(7 r)});
+        \draw[<->](7.5,-3)--node[right]{$EI\cos\theta$}(7.5,{1.5 * cos(7 r)-3});
+        \draw(2,3)node[anchor=north]{$p$};
+        \draw(1.5,1.7)node[anchor=north]{$e$};
+        \draw(3.7,1.2)node[anchor=north]{$i$};
+        \draw[dashed](1.23,0)--(1.23,-1.5);
+        \draw[dashed](0.49,0)--(0.49,-1.5);
+        \draw(7.9,-5.4)node[right]{$EI\cos(2\omega t -2\phi - \theta)$};
+        \draw[<->](0.49,-1.2)--node[anchor=north]{$\theta$}(1.23,-1.2);
+        \draw[<->](0.49,-1.2)--node[anchor=north]{$\phi$}(0,-1.2);
+      \end{circuitikz}
+    \end{center}\caption{交流電力の波形}\label{fig:交流波形}
+  \end{figure}
+  式\ref{eq:cos}の平均値$P_{\mathrm{av}}$は1周期を$T$とすれば次のようになる。
+  \begin{equation}
+    \begin{split}
+      P_{av} &= \dfrac{1}{T}\int_{0}^{T}\vec{p} dt =EI \cos\theta\\
+      &=I \sqrt{R^2 + X^2}\times I \times \dfrac{R}{\sqrt{R^2 + X^2}}\\
+      &=I^2R\label{eq:pav}
+    \end{split}
+  \end{equation}
+  交流回路の平均電力は負荷電圧、負荷電流の実効値および両者間の位相差の余弦（cos）の積で示され、抵抗文中で消費される単位時間（1s）あたりの熱的エネルギーに等しく、これを一般に有効電力と呼ぶ。有効電力を$P\:$Wとすれば、
+  \begin{equation}
+    P=P_{av} = EI\cos\theta = I^2R \label{eq:有効電力}
+  \end{equation}
+  であり、もしも負荷が$R$のみの場合には
+  \begin{equation}
+    P=EI,\cos\theta=1
+  \end{equation}
+  で直流の場合とまったく同一である。さて、式の$\cos\theta$を除いた部分$EI$を見かけの電力：皮相電力といい$S\:$VAで表す。これに無効率$\sin\theta$を乗じたものを無効電力$Q\:$Varで表す。
+  \begin{equation}
+    Q=EI\sin\theta=I^2X
+  \end{equation}
+  \begin{equation}
+    \sin\theta=\dfrac{X}{\sqrt{R^2 + X^2}}
+  \end{equation}
+  \clearpage
+  \section{実験}
+  今回の実験では、図\ref{fig:circui1}のようなRLC回路を結線し、ディジタルオシロスコープを用いて測定した。このとき、ディジタルオシロスコープCH1のプローブは回路全体測るようにし、CH2のプローブは抵抗のみを測るようにした。
+\subsection{実験方法}
+\begin{itemize}
+  \item [(1)]ディジタルオシロスコープに電源ケーブルをつなげてから電源を入れた。
+  \item [(2)]ディジタルオシロスコープにプローブを２つ接続した後に、CH1とCH2、MATHの波形が見れるようにした。
+  \item [(3)]ディジタルオシロスコープのMeasure機能を用いて、「CH1の周波数」、「CH1とCH2の周期RMS」、「CH1を基準としたCH2の位相（波形同士の時間的なずれのこと）」、「MATHの平均値」を表示させた。
+  \item [(4)]ディジタルオシロスコープの電源を一旦消した。
+  \item [(5)]ブレッドボードを用いて、図\ref{fig:circui1}のようなRLC回路を結線した。
+  \item [(6)]信号発生器に電源ケーブルをつなげた。
+  \item [(7)]信号発生器の「AMPLITUDE」をMIN（つまみを一番左まで回す）にし、ATT$\SI{-20}{\deci\bel}$ボタンを押し、FUNCTIONを一番右の正弦波ボタンを押した。
+  \item [(8)](7)の設定が終わった後に、信号発生器とディジタルオシロスコープの電源を入れた。
+  \item [(9)]CH1の周期RMS(実効値)が常に$\SI{2}{\volt}$になるようにしながら周波数$f$を、
+  \begin{itemize}
+    \item 1$\:\si{\hertz}$
+    \item 10$\:\si{\hertz}$
+    \item 15$\:\si{\hertz}$
+    \item 30$\:\si{\hertz}$
+    \item 100$\:\si{\hertz}$
+    \item 1$\:\si{\kilo\hertz}$
+    \item 5$\:\si{\kilo\hertz}$
+    \item 10$\:\si{\kilo\hertz}$
+    \item 100$\:\si{\kilo\hertz}$
+    \item 200$\:\si{\kilo\hertz}$
+    \item 300$\:\si{\kilo\hertz}$
+    \item 500$\:\si{\kilo\hertz}$
+    \item 900$\:\si{\kilo\hertz}$
+  \end{itemize}
+  に変えて、オシロスコープの波形と(3)で設定したMeasure機能の数値データをUSBメモリにそれぞれ保存した。
+\end{itemize}
+\clearpage
+\begin{figure}[H]
+  \centering
+  \begin{circuitikz}
+    \draw (0,0)
+      to[vsourcesin](0,5)
+      to[short](1.25,5)
+      to[short](1.25,3);
+    \draw (1.25,2.5) circle (0.5);
+    \draw (1.25,2)
+      to [short] (1.25,0)
+      to [short] (0,0);
+    \draw (1,5)
+      to[short](3,5);
+    \draw (3,0)
+      to [short](1,0);
+    \draw (3,5)
+      to[short] (4,5)
+      to [C] (4,3.25)
+      to [L] (4,1.95)
+      to [european resistor] (4,0)
+      to [short] (3,0);
+    \draw(6.5,0.2)
+      to[short] (6.5,0);
+    \draw (6.5,0.7) circle(0.5);
+    \draw (6.5,1.2)
+      to [short] (6.5,1.8)
+      to [short] (4,1.8);
+    \draw (6.5,0)
+      to [short] (4,0);
+    \fill [black] (1.25,5) circle (0.06);
+    \fill [black] (1.25,0) circle (0.06);
+    \fill [black] (4,1.8) circle (0.06);
+    \fill [black] (4,0) circle (0.06);
+    \draw (1.25,0) to (1.25,-0.1) node[cground]{}; 
+    \draw (-0.8,2.7) node[anchor=north]{$E$};   
+    \draw (4.8,4.35) node[anchor=north]{$C$};
+    \draw (4.8,2.75) node[anchor=north]{$L$};
+    \draw (4.95,1.15) node[anchor=north]{$R=\SI{1}{\kilo\ohm}$};
+    \draw (1.9,1.6) node[anchor=north]{OSC.};
+    \draw (1.9,1.2) node[anchor=north]{CH1};
+    \draw (7.2,2.2) node[anchor=north]{OSC.};
+    \draw (7.2,1.8) node[anchor=north]{CH2};
+    \draw (0.9,2.35)--(1.3,2.6)--(1.3,2.4)--(1.6,2.6);
+    \draw (6.2,0.6)--(6.6,0.8)--(6.6,0.65)--(6.9,0.8);
+  \end{circuitikz}
+  \caption{電力測定回路} \label{fig:circui1}
+\end{figure}
+
+\subsection{実験機器}
+実験で使用した機器を以下の表\ref{tab:使用機器}に示す。
+\begin{table}[H]
+\caption{使用機器}\label{tab:使用機器}
+\begin{center}
+    \begin{tabular}{|c|c|c|c|c|}
+      \hline
+      使用機器&規格&管理番号&製造会社\\
+      \hline
+      ディジタルオシロスコープ&TBS 1022&8/25&Tektronix\\
+      信号発生器&FG-272&L96-000212&KENWOOD\\
+      ブレッドボード&SRH-21B&&Sunhayato\\
+      コンデンサ$C$/\si{\farad}&$\SI{1}{\micro\farad}\:\pm10\%$&&\\
+      インダクタ$L$/\si{\henry}&$\SI{1}{\milli\henry}\:\pm20\%$&&\\
+      抵抗$R$/\si{\ohm}&$\SI{1}{\kilo\ohm}$&&\\
+      \hline
+    \end{tabular}
+\end{center}
+\end{table}
+\clearpage
+\section{実験結果}
+  $\S3.1$にもあるように、今回の実験では周波数$f$を変えるために信号発生器のつまみを調整して、それぞれの波形と数値データをUSBメモリに記録した。この記録したデータを図\ref{fig:USB}に示す。表\ref{tab:測定結果１}には、ディジタルオシロスコープのMeasure機能の数値データを示す。また、表中の？はディジタルオシロスコープのHorizontalのScale設定を間違えてるため、波形が大きく表示されて正しく測定できていないことを示す。
+  \begin{table}[H]
+    \caption{ディジタルオシロスコープの測定データ}\label{tab:測定結果１}
+      \begin{center}
+          \begin{tabular}{|c|c|c|c|c|}
+            \hline
+              \begin{tabular}{c}周波数\\$f$/$\si{\kilo\hertz}$\end{tabular} & \begin{tabular}{c}CH1周期RMS\\$V_1$/$\si{\volt}$\end{tabular} & \begin{tabular}{c}CH2周期RMS\\$V_2$/$\si{\volt}$\end{tabular} & \begin{tabular}{c}CH2位相\\ $\theta$/$\circ$\end{tabular} & \begin{tabular}{c}MATH平均値\\  $\bar{x}$ /VV \end{tabular} \\
+            \hline
+            0.001 & ? & 7.95m ? & -80.0 ? & -829 $\mu$\\
+            0.010 & 1.98 & 130m & 85.3 & 19.7m\\
+            0.015 & 1.99 & 195m & 85.2 & 46.2m\\
+            0.030 & 1.99 & 389m & 81.0 & 174m\\
+            0.100 & 2.00 & 1.06 & 57.9 & 1.17\\
+            1.000 & 1.97 & 1.94 & 9.83 & 3.72\\
+            5.000 & 1.98 & 1.99 & -0.370 & 3.40\\
+            10.30 & 1.98 & 1.99 & -1.85& 3.94\\
+            100.0 & 2.02 & 1.75 & -31.8 & 3.01\\
+            200.0 & 2.00 & 1.26 & -50.8 & 1.49 \\
+            300.0 & 1.98 & 957m & -59.0 & 873m\\
+            500.0 & 2.00 & 570m & -73.8 & 299m\\
+            900.0 & 2.01 & 212m & -88.2 & 20.2m\\
+            \hline
+          \end{tabular}
+      \end{center}
+    \end{table}
+  \begin{figure}[H]
+    \begin{minipage}[H]{0.5\linewidth}  
+      \centering
+      \includegraphics[keepaspectratio,scale=0.3]{figure/pdf2/!1.pdf}
+    \end{minipage}
+    \begin{minipage}[H]{0.5\linewidth}  
+      \centering
+      \includegraphics[keepaspectratio,scale=0.3]{figure/pdf2/!10.pdf}
+    \end{minipage}
+    \begin{minipage}[H]{0.5\linewidth}  
+      \centering
+      \includegraphics[keepaspectratio,scale=0.3]{figure/pdf2/!15.pdf}
+    \end{minipage}
+    \begin{minipage}[H]{0.5\linewidth}  
+      \centering
+      \includegraphics[keepaspectratio,scale=0.3]{figure/pdf2/!30.pdf}
+    \end{minipage}
+    \begin{minipage}[H]{0.5\linewidth}  
+      \centering
+      \includegraphics[keepaspectratio,scale=0.3]{figure/pdf2/!100.pdf}
+    \end{minipage}
+    \begin{minipage}[H]{0.5\linewidth}  
+      \centering
+      \includegraphics[keepaspectratio,scale=0.3]{figure/pdf2/1k.pdf}
+    \end{minipage}
+    \caption{周波数$f$が$\SI{1}{\hertz}$～$\SI{1.009}{\kilo\hertz}$のディジタルオシロスコープ画面}\label{fig:USB}
+  \end{figure}
+  \rightline{次のページに続く}
+  \begin{figure}[H]
+      \begin{minipage}[H]{0.5\linewidth}  
+        \centering
+        \includegraphics[keepaspectratio,scale=0.3]{figure/pdf2/5k.pdf}
+      \end{minipage}
+      \begin{minipage}[H]{0.5\linewidth}  
+        \centering
+        \includegraphics[keepaspectratio,scale=0.3]{figure/pdf2/10k.pdf}
+      \end{minipage}
+      \begin{minipage}[H]{0.5\linewidth}  
+        \centering
+        \includegraphics[keepaspectratio,scale=0.3]{figure/pdf2/100k.pdf}
+      \end{minipage}
+      \begin{minipage}[H]{0.5\linewidth}  
+        \centering
+        \includegraphics[keepaspectratio,scale=0.3]{figure/pdf2/200k.pdf}
+      \end{minipage}
+      \begin{minipage}[H]{0.5\linewidth}  
+        \centering
+        \includegraphics[keepaspectratio,scale=0.3]{figure/pdf2/300k.pdf}
+      \end{minipage}
+      \begin{minipage}[H]{0.5\linewidth}  
+        \centering
+        \includegraphics[keepaspectratio,scale=0.3]{figure/pdf2/500k.pdf}
+      \end{minipage}
+      \begin{minipage}[H]{0.5\linewidth}  
+        \centering
+        \includegraphics[keepaspectratio,scale=0.28]{figure/pdf2/900k.pdf}
+      \end{minipage}
+    \caption*{図4.1:周波数$f$が$\SI{5.139}{\kilo\hertz}$～$\SI{905.8}{\kilo\hertz}$のディジタルオシロスコープ画面}
+  \end{figure}
+\clearpage
+最初に図\ref{fig:USB}のそれぞれの位相を比較すると、信号発生器の周波数$f$を$\SI{5}{\kilo\hertz}$に設定したときに、位相は-0.370でもっとも位相が小さくなっている。これは、この回路においての共振周波数$f_0$を計算すると、
+\begin{equation}
+  f_0=\dfrac{1}{2\pi\sqrt{LC}}=\dfrac{1}{2\pi\sqrt{1\times 10^{-3}\times 1\times 10^{-6}}}=5032\:\si{\hertz}\label{eq:共振周波数}
+\end{equation}
+である。そのため、図\ref{fig:USB}(G)のCH1周波数$f$が$\SI{5.139}{\kilo\hertz}$(信号発生器の周波数f設定が$\SI{5}{\kilo\hertz}$)の時が、今回の実験で測定した周波数$f$の中で一番共振周波数$f_0$に近いことが分かる。また、この周波数$f$が共振周波数$f_0$の近似値であるため位相が最も小さくかつ0に限りなく近い事が分かる。\\
+　周波数$f$が$\SI{1}{\hertz}$～$\SI{100}{\hertz}$と、$\SI{900}{\kilo\hertz}$の時は、他のディジタルオシロスコープの画面上の波形と異なり、主にCH2の波形に大きく波形が乱れている事が読み取れる。
+
+\section{考察}
+３つの考察を以下(1)～(3)に示す。
+\begin{itemize}
+  \item [(1)]
+  次に、CH1とCH2の実効値と位相差(CH2-CH1)の値を用いて有効電力と力率を求めた計算結果と、ディジタルオシロスコープのMATH平均値の値を比較する。まず最初に、式\ref{eq:有効電力}を使って有効電力を計算するために、電流$I$をオームの法則より求める。
+  \begin{equation}
+    I = \dfrac{V_2}{R}\label{eq:I}
+  \end{equation}
+  このとき、$V_2$はディジタルオシロスコープのCH2実効値、$R$は直列回路で使用した$\SI{1}{\kilo\ohm}$の抵抗値を使用する。ここで求めた電流$I$は直列回路のため回路全体の電流値である。次に式\ref{eq:有効電力}の$I$に式\ref{eq:I}で求めた値を代入し、表\ref{tab:測定結果１}より$\cos\theta$にの位相差$\theta$、$V_1$はディジタルオシロスコープのCH1実効値を代入する。
+  \begin{equation}
+    P = V_1I\cos\theta\label{eq:P}
+  \end{equation}
+  式\ref{eq:I}と式\ref{eq:P}より求めた値を表\ref{tab:結果２}に示す。表\ref{tab:結果２}内にある「※」は、計算する値に？が含まれているため計算が出来ないことを示している。\\
+  　次に、表\ref{tab:測定結果１}の値MATH平均値$\bar{x}$は「VV」という単位であって、電力の単位Wでないことからこのままでは比較することができない。そのため、MATH平均値$\bar{x}$は以下のようにして単位を変換することにする。
+  \begin{equation}
+    \begin{split}
+      VV & = V_1 \times V_2 = \dfrac{V_1V_2}{R} = V_1 \times I = W\label{eq:VVtoW}
+    \end{split}
+  \end{equation}
+  式\ref{eq:VVtoW}にあるようにMATH平均値は、CH1・CH2の実効値の掛け算したものである。CH2の実効値では図\ref{fig:circui1}より回路全体ではなく抵抗$R$分のみの実効値を表している。オームの法則より、電圧値$V_2$を抵抗値$R$で割ると電流値$I$を求めることができる。このようにすると、$V_1 I$という式が求められる。また、電力$W$を求めるには電圧値$V_1$に電流値$I$をかけることで求めることができる。つまり、MATH平均値$\bar{x}$は抵抗$R$で割ると有効電力と比較することができるようになる。この単位変換したMATH平均値の値を表\ref{tab:結果２}に示す。\\
+  \begin{table}[H]
+    \caption{各周波数$f$ごとの有効電力$P$と力率$\theta$の計算結果}\label{tab:結果２}
+      \begin{center}
+          \begin{tabular}{|c|c|c|c|}
+            \hline
+            \begin{tabular}{c}力率\\$\theta$\end{tabular} & \begin{tabular}{c}MATH平均値\\  $\bar{x}$ /$\si{\micro W}$ \end{tabular} & \begin{tabular}{c}電流値\\ $I$ / $\si{\milli\ampere}$ \end{tabular} & \begin{tabular}{c}有効電力 \\ $P$ / $\si{\micro W}$ \end{tabular}\\
+            \hline
+            0.1736& -0.829 &※&※\\
+            0.0819& 19.7 & 0.13 & 21.09\\
+            0.0836& 46.2 & 0.195 & 32.47\\
+            0.15643& 174 & 0.389 & 121.10\\
+            0.53139& 1170 & 1.06 & 1126.56\\
+            0.98531& 3720 & 1.94 & 3765.69\\
+            0.99997& 3400 & 1.99 & 3940.12\\
+            0.99947& 3940 & 1.99 & 3938.15\\
+            0.84989& 3010 & 1.75 & 3004.37\\
+            0.63202& 1490 & 1.26 & 1592.71\\
+            0.51503& 873 & 0.956 & 974.91\\
+            0.27899& 299 & 0.57 & 318.05\\
+            0.03141& 20.2 & 0.212 & 13.38\\
+            \hline
+          \end{tabular}
+      \end{center}
+    \end{table}
+    表\ref{tab:結果２}より、MATH平均値と有効電力を比較する。式\ref{eq:pei}で求めた瞬時値を式\ref{eq:pav}で１周期の範囲で積分して求めるのが平均値である。また、この平均値を有効電力ということもある。このようなことを踏まえて比較すると、MATH平均値も有効電力も基本的にMATH平均値のほうが高い。しかし、どちらの値も$\si{\mu}$オーダーのため、非常に小さな誤差でしかないと思われる。
+    \item [(2)]測定周波数の違いにより、MATHの波形はどのように変化するかを考える。今回は、(3)に記したようにMATHの基準が違うところがいくつかあるため、MATHの1メモリ当たりが$\SI{5}{\volt\volt}$にしたときである周波数$f$が$\SI{1.009}{\kilo\hertz}$、$\SI{5.139}{\kilo\hertz}$、$\SI{10.30}{\kilo\hertz}$のみで比較する。周波数$f$を大きくしていくと、正弦波の幅が大きくなる。しかし式\ref{eq:共振周波数}より共振周波数の近似値である$\SI{5.139}{\kilo\hertz}$を境に、1周期あたりの正弦波の幅が小さくなる。ということが読み取れる。
+    \item[(3)]今回の実験ではディジタルオシロスコープの波形とMeasure機能の数値データをUSBメモリに記録した。ディジタルオシロスコープのデータ整理を後ですることを考えて、波形がなるべく重ならないようにscale倍率を変更した。しかし、MATHの波形がどのように変化するかを考察(2)ですることを考えていなかったため、MATHの１メモリあたりの$\si{\volt}$数を統一していなかった。統一しない場合、波形の変化を調べたいのにもかかわらず、基準が違うため比較が難しくなってしまう事が考えられる。
+\end{itemize}
+\section{まとめ}
+  レポートをまとめる上で、有効電力や力率を計算したりすることで理解を深めることができたので、目的は達成したと言える。
+\end{document}

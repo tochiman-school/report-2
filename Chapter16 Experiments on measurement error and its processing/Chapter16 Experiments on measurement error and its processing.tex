@@ -1,0 +1,379 @@
+\documentclass[10pt,a4paper]{jsarticle}
+
+\usepackage{amsmath,amssymb}
+\usepackage[dvipdfmx]{graphicx}
+\usepackage{float}
+\usepackage{tikz}
+\usepackage{circuitikz}
+\usepackage{siunitx}
+\usepackage{at}
+\usepackage{comment}
+\usepackage[hang,small,bf]{caption}
+\usepackage[subrefformat=parens]{subcaption}
+
+\usetikzlibrary{patterns}
+
+\captionsetup{compatibility=false}
+
+\usetikzlibrary{intersections,calc,arrows.meta}
+
+\numberwithin{equation}{section}
+\numberwithin{figure}{section}
+\numberwithin{table}{section}
+
+\newcommand{\ctext}[1]{\raise0.2ex\hbox{\textcircled{\scriptsize{#1}}}}
+
+\begin{document}
+\section{目的}
+  ディジタルマルチメータで測定した抵抗器の測定結果に、1次式($y=ax+b$)の最小2乗法と実験標準偏差の誤差処理を実際に適応することで、これらの誤差処理方法を理解することを目的とする。
+\section{原理}[1]
+  もし今回は原理として$\S2.1$で1次式($y=ax+b$)の最小2乗法の式を導出し、$\S2.2$で実験標準偏差の式を導出したものを示す。
+  \subsection{1次式($y=ax+b$)の最小2乗法}
+
+  \begin{figure}[H]
+    \begin{minipage}[H]{0.5\linewidth}
+      \begin{center}
+        \begin{circuitikz}
+          \draw[->,>=stealth,semithick,name path=x] (-1,0)--(3,0)node[above]{$x$}; %x軸
+          \draw[->,>=stealth,semithick,name path=y] (0,-1)--(0,3)node[right]{$y$}; %y軸
+          \draw (0,0)node[below right]{O}; %原点
+          \draw[very thick,domain=-0.5:3,name path=a] plot(\x,\x/3+1)node[right]{回帰直線:$y=ax+b$};
+          \fill [black] (0.3,0.9) circle (0.06);
+          \fill [black] (0.5,1.09) circle (0.06);
+          \fill [black] (0.8,1.45) circle (0.06);
+          \fill [black] (1.2,1.1) circle (0.06);
+          \fill [black] (1.45,1.73) circle (0.06);
+          \fill [black] (1.7,1.98) circle (0.06);
+          \fill [black] (2,1.4) circle (0.06);
+          \fill [black] (2.34,1.71) circle (0.06);
+          \fill [black] (2.6,1.72) circle (0.06);
+          \fill [black] (3,2.2) circle (0.06);
+        \end{circuitikz}
+      \end{center}
+    \caption{散布図（相関している）の例グラフ}\label{fig:散布図例}
+    \end{minipage}
+    \begin{minipage}[H]{0.5\linewidth}  
+      \begin{center}
+        \begin{circuitikz}
+          \draw[->,>=stealth,semithick,name path=x] (-1,0)--(3,0)node[above]{$x$}; %x軸
+          \draw[->,>=stealth,semithick,name path=y] (0,-1)--(0,3)node[right]{$y$}; %y軸
+          \draw (0,0)node[below right]{O}; %原点
+          \draw[very thick,domain=-0.5:3,name path=a] plot(\x,\x/3+1)node[right]{回帰直線:$y=ax+b$};
+          \draw [dashed,name path=b] (0,2)--(1,2)--(1,0);
+          \path[name intersections={of= a and b}];
+          \fill [black] (intersection-1) circle (0.06)node[below right]{($x_i$, $ax_i+b$)};
+          \path[name intersections={of= x and b}];
+          \fill [black] (intersection-1) circle (0.06)node[below]{$x_i$};
+          \fill [black] (1,2) circle (0.06)node[above]{($x_i$, $y_i$)};
+        \end{circuitikz}
+      \end{center}
+      \caption{回帰直線とあるデータの誤差を示すグラフ}\label{fig:回帰直線とあるデータの誤差を示すグラフ}
+    \end{minipage}
+  \end{figure}
+  
+
+  図\ref{fig:散布図例}のような実験結果の散布図が与えられて、その散布図にある程度相関があるとき、このデータを表す実験式として、
+  
+  \begin{equation}
+    \label{1次式}
+    y=ax+b
+  \end{equation}
+  
+  がある。これを「yのxへの回帰直線」と言い、式\ref{1次式}の係数aとbはそれぞれ最小2乗法から求めることができる。図\ref{fig:回帰直線とあるデータの誤差を示すグラフ}において、ある実験データ($x_i$, $y_i$)の点と、回帰直線上の点($x_i$, $ax_i+b$)のy座標の差は
+
+  \begin{equation}
+    \label{y座標の差}
+    y_i-(ax_i+b)
+  \end{equation}
+  
+  となり、式\ref{y座標の差}の2乗の総和をLとおくと、
+  
+  \begin{equation}\label{L式}
+    L=\sum_{i=1}^{n} (y_i-ax_i-b)^2
+  \end{equation}
+  
+  という式が成り立つ。このとき、式\ref{L式}のaとbを変数（それ以外を定数）と見て、Lを最小になるようにaとbを定める方法を最小2乗法という。Lが最小になるとき、
+  \begin{equation}\label{L_min_a}
+    \dfrac{\partial L}{\partial a} = 0
+  \end{equation}
+  \begin{equation}\label{L_min_b}
+    \dfrac{\partial L}{\partial b} = 0
+  \end{equation}
+
+  となる。最初に、式\ref{L_min_a}に式\ref{L式}を代入して偏微分を行い、式変形をしていくと、
+  \begin{equation}\label{a,bみち}
+    \begin{split}
+      &\dfrac{\partial L}{\partial a} = \dfrac{\partial}{\partial a} \times \left\{\sum_{i=1}^{n} (y_i-ax_i-b)^2\right\} \\
+      &= \sum_{i=1}^{n} 2(y_i - ax_i - b) \times (- x_i)\\
+      &= 2\sum_{i=1}^{n} (ax^2_i + bx_i - x_iy_i) = 0 \;\;\;より\\
+      & a\sum_{i=1}^{n} x^2_i + b\sum_{i=1}^{n} x_i - \sum_{i=1}^{n} x_iy_i = 0\\
+      &\therefore a\sum_{i=1}^{n} x^2_i + b\sum_{i=1}^{n} x_i = \sum_{i=1}^{n} x_iy_i \cdot\cdot\cdot \ctext{1}\\
+      &となる。同様に、式\ref{L_min_b}に式\ref{L式}を代入して偏微分を行い、式変形すると、\\
+      &\dfrac{\partial L}{\partial b} = \dfrac{\partial}{\partial b} \times \left\{\sum_{i=1}^{n} (y_i-ax_i-b)^2\right\} \\
+      &= \sum_{i=1}^{n} 2(y_i-ax_i-b) \times (-1) = 0 \;\;\;より\\
+      &a \sum_{i=1}^{n} x_i + b \sum_{i=1}^{n} 1 - \sum_{i=1}^{n} y_i = 0\\
+      &\therefore a \sum_{i=1}^{n} x_i + nb = \sum_{i=1}^{n} y_i \cdot\cdot\cdot \ctext{2}
+    \end{split}
+  \end{equation}
+
+  となる。式\ref{a,bみち}の\ctext{1}と\ctext{2}はaとbを未知数とする非同次の２元連立１次方程式より、これを行列とベクトルの積の形にまとめると、
+  \begin{equation}\label{行列}
+    \begin{split}
+      &\begin{bmatrix}
+        \sum\limits_{i=1}^{n} x^2_i & \sum\limits_{i=1}^{n} x_i \\
+        \sum\limits_{i=1}^{n} x_i & n \\
+      \end{bmatrix}
+      \begin{bmatrix}
+        a\\
+        b\\
+      \end{bmatrix}
+      =
+      \begin{bmatrix}
+        \sum\limits_{i=1}^{n} x_iy_i\\
+        \sum\limits_{i=1}^{n} y_i\\
+      \end{bmatrix}
+      \cdot\cdot\cdot \ctext{1}\\
+      &\ctext{1} の両辺に
+      \begin{bmatrix}
+        \sum\limits_{i=1}^{n} x^2_i & \sum\limits_{i=1}^{n} x_i \\
+        \sum\limits_{i=1}^{n} x_i & n\\
+      \end{bmatrix}^{-1}
+      を左からかけると、\\
+      &\begin{bmatrix}
+        a\\
+        b\\
+      \end{bmatrix}
+      =
+      \begin{bmatrix}
+        \sum\limits_{i=1}^{n} x^2_i & \sum\limits_{i=1}^{n} x_i \\
+        \sum\limits_{i=1}^{n} x_i & n\\
+      \end{bmatrix}^{-1}
+      \begin{bmatrix}
+        \sum\limits_{i=1}^{n} x_iy_i\\
+        \sum\limits_{i=1}^{n}  y_i\\
+      \end{bmatrix}\\
+      &=
+      \dfrac{1}{\Delta}
+      \begin{bmatrix}
+        n & -\sum\limits_{i=1}^{n} x_i\\
+        -\sum\limits_{i=1}^{n} x_i & \sum\limits_{i=1}^{n} x^2_i\\
+      \end{bmatrix}
+      \begin{bmatrix}
+        \sum\limits_{i=1}^{n} x_iy_i\\
+        \sum\limits_{i=1}^{n} y_i\\
+      \end{bmatrix}
+      \cdot\cdot\cdot \ctext{2}\\
+      &\left(ただし、行列式\Delta = n\sum\limits_{i=1}^{n} x^2_i-\left(\sum\limits_{i=1}^{n} x_i\right)^2=n^2 \sigma^2_x \neq 0\right)
+    \end{split}
+  \end{equation}
+
+  となる。式\ref{1次式}の係数aは式\ref{行列}の\ctext{2}より、
+
+  \begin{equation}\label{a}
+    \begin{split}
+      &a = \dfrac{1}{\Delta}\left(n\sum\limits_{i=1}^{n} x_iy_i - \sum\limits_{i=1}^{n} x_i\sum\limits_{i=1}^{n} y_i\right) \cdot\cdot\cdot \ctext{1}\\
+      &\ctext{1}の式において、\sum\limits_{i=1}^{n} x_i を n\bar{x} とし、\sum\limits_{i=1}^{n} y_i を n\bar{y}とすると、\\
+      &=\dfrac{n\sum\limits_{i=1}^{n} x_iy_i - n^2\bar{x}\bar{y}}{n\sum\limits_{i=1}^{n} x^2_i - \left(\sum\limits_{i=1}^{n} x_i\right)^2}\\
+      &=\dfrac{n^2 \left(\dfrac{1}{n}\sum\limits_{i=1}^{n} x_iy_i - \bar{x}\bar{y}\right)}{n^2\left(\dfrac{1}{n} \sum\limits_{i=1}^{n} x^2_i - \bar{x}^2\right)} \cdot\cdot\cdot \ctext{2}\\
+      &このときn^2を約分した\ctext{2}の分子を\sigma_{xy}とし、分母を\sigma^2_xとすると、\\
+      &=\dfrac{\sigma_{xy}}{\sigma^2_x}\\
+      &\\
+      &\therefore a = \dfrac{\sigma_{xy}}{\sigma^2_x}
+    \end{split}
+  \end{equation}
+
+  という形で求められる。次に、式\ref{1次式}の係数bは式\ref{a,bみち}の\ctext{2}から求められる。\ctext{2}の両辺を$n$で割ると、
+  \begin{equation}\label{b}
+    \begin{split}
+      &a \times \dfrac{1}{n} \sum\limits_{i=1}^{n} x_i + b = \dfrac{1}{n}\sum\limits_{i=1}^{n} y_i\\
+      &\\
+      &\therefore b=\bar{y} - a\bar{x}
+    \end{split}
+  \end{equation}
+
+  となり、係数bを求めることができる。
+  \subsection{実験標準偏差}[2][3]
+  最初に、ある実験データの平均を$\bar{x}$とし、個々のデータ$x_i$（$i$番目の測定値）、データ数を$n$としたとき、
+  \begin{equation}
+    \sigma^2 = \dfrac{1}{n} \sum_{i=1}^{n} (x_i - \bar{x})^2 \label{標準偏差}
+  \end{equation}
+  標準偏差という式がある。これは、$n$個のデータからなる母集団（対象としている集合の全要素から得られる数値全体のデータの集まり）の偏りを表す指標のことである。しかし、標準偏差$\si{\sigma}$は実験標準偏差$s$と違って、推測統計ではない。そのため、実験標準偏差$s$を示すことができない。そもそも、実験標準偏差$s$は、$x_i$の$i$番目の測定値、$\bar{x}$を平均値、$n$をデータ数とすると、
+  \begin{equation}
+    s = \sqrt{\dfrac{1}{n-1}\sum_{i=1}^{n} (x_i-\bar{x})^2}
+  \end{equation}
+  という式である。この式は、先ほど述べた推測統計という母集団から抽出した標本により、母集団を推定する時に使う。また、実験標準偏差$s$の根号を取り除いた式として不偏分散$s_2$という式がある。不偏分散とは、実験標準偏差$s$と同じく推測統計であり、標準偏差$\si{\sigma}$の期待値（これが分かると、その分布の平均となる値が分かる）が母分散に一致するように標本分散の算出式にn/(n-1)をかけたものである。これは、標本標準偏差は母集団標準偏差よりも小さくなってしまうことから、n/(n-1)をしている。これらの行操作を式に表すと、
+  \begin{equation}
+    \begin{split}
+      &\dfrac{n}{n-1} \times \dfrac{1}{n} \sum_{i=1}^{n} (x_i - \bar{x})^2\\
+      &=\dfrac{1}{n-1}\sum_{i=1}^{n} (x_i-\bar{x})^2\\
+    \end{split}
+  \end{equation}
+  となる。
+
+  \section{実験}
+  今回の実験では、最初に実験標準偏差を検討するために、抵抗器$R_1$を60個測った。次に、1次式の最小2乗法を検討するために、抵抗器$R_1～R_6$をそれぞれ1回ずつ測った。
+    \subsection{実験方法}
+    以下のような手順で実験を行った。
+      \subsubsection{実験標準偏差}
+        \begin{itemize}
+          \item [(1)]最初に、ディジタルマルチメータの電源スイッチが「OFF」になっていることを確認してから、電源プラグを差し込んだ。
+          \item [(2)]ディジタルマルチメータの電源を「ON」にした。
+          \item [(3)]INPUTに、テスト棒を差し込んだ。
+          \item [(3)]FILTERボタンを押して、画面から「FILTER」表記が消えていることを確認した。
+          \item [(4)]EXTRIGボタンを押してから、TRIGボタンを押した。
+          \item [(5)]$\si{\ohm}2$ボタンを押して、抵抗を測るモードにした。
+          \item [(6)]RANGEボタンを使い、「OHM」レンジにした。
+          \item [(7)]ディジタルマルチメータに差し込んだテスト棒を用いて、抵抗器$R_1$を60個測った。（このとき、測り次第データをノートに記録した。）
+        \end{itemize}
+      \subsubsection{1次式の最小2乗法}
+        \begin{itemize}
+          \item [(1)]実験標準偏差用の実験データを集め終えた後に、各班の抵抗器をそれぞれ１つずつ適当に取った（自班と合わせて合計で６個）。
+          \item [(2)]実験標準偏差の時と同様に、ディジタルマルチメータで抵抗器$R_1～R_6$を測った。（このとき、測り次第データをノートに記録した。）
+        \end{itemize}
+
+  \subsection{実験機器}
+    実験で使用した機器を以下の表\ref{tab:使用機器}に示す。
+    \begin{table}[H]
+    \caption{使用機器}\label{tab:使用機器}
+    \begin{center}
+        \begin{tabular}{|c|c|c|c|c|}
+          \hline
+          使用機器&レポート内の記号&規格・許容差&管理番号&製造会社\\
+          \hline
+          6-1/2ディジタルマルチメータ&&2000&L96-006697&KEITHLEY\\
+          \hline
+          リード線形抵抗器(4線)&$R_1$ &110 $\si{\ohm}$$\;\cdot\;\pm 5$&&\\
+          \hline
+          リード線形抵抗器(4線)&$R_2$ &120 $\si{\ohm}$$\;\cdot\;\pm 5$&&\\
+          \hline
+          リード線形抵抗器(4線)&$R_3$ &130 $\si{\ohm}$$\;\cdot\;\pm 5$&&\\
+          \hline
+          リード線形抵抗器(4線)&$R_4$ &150 $\si{\ohm}$$\;\cdot\;\pm 5$&&\\
+          \hline
+          リード線形抵抗器(4線)&$R_5$ &160 $\si{\ohm}$$\;\cdot\;\pm 5$&&\\
+          \hline
+          リード線形抵抗器(4線)&$R_6$ &180 $\si{\ohm}$$\;\cdot\;\pm 5$&&\\
+          \hline
+          
+        \end{tabular}
+    \end{center}
+    \end{table}
+\section{実験結果}
+  今回の実験では、$\S3.1$にあるように２つの誤差処理を検討するために与えられた抵抗器$R$を測った。このときの測定結果を$\S3.1$と同様に、それぞれの誤差処理ずつに章分けして示す。
+  \subsection{実験標準偏差}
+  $\S3.1$にあるように、抵抗器$R_1$60個の測定結果を表\ref{tab:測定結果１}に示す。表\ref{tab:測定結果１}の測定抵抗値の平均値$\bar{x}$は$110.94\si{\ohm}$である。表\ref{tab:測定結果１}の測定抵抗と平均値を比較すると、6,22,26,47,51,55.56回目では約112$\si{\ohm}$であり平均値$\bar{x}$より約1$\si{\ohm}$高い結果となった。
+  \begin{table}[H]
+  \caption{抵抗器$R_1$の測定結果}\label{tab:測定結果１}
+    \begin{center}
+      \scalebox{1}{
+        \begin{tabular}{|c|c|c|c|}
+          \hline
+            データ数$\;:\;n$&測定抵抗$\;:\;R_1 / \si{\ohm}$&データ数$\;:\;n$&測定抵抗$\;:\;R_1 / \si{\ohm}$\\
+          \hline
+          1&111.3373&2&111.2384\\
+          3&110.9289&4&110.9608\\
+          5&110.1471&6&112.1501\\
+          7&110.0091&8&110.1586\\
+          9&109.7316&10&110.9134\\
+          11&109.8568&12&110.1689\\
+          13&110.6910&14&110.5940\\
+          15&110.4368&16&111.3552\\
+          17&110.9869&18&110.1503\\
+          19&110.6759&20&110.2279\\
+          21&110.6109&22&112.0148\\
+          23&111.6734&24&110.3216\\
+          25&110.4937&26&112.1341\\
+          27&113.5877&28&111.5359\\
+          29&110.6828&30&109.8603\\
+          31&110.1884&32&110.0415\\
+          33&111.5038&34&110.3065\\
+          35&110.2803&36&109.7902\\
+          37&111.1231&38&110.7709\\
+          39&111.0797&40&111.6174\\
+          41&111.2432&42&111.1656\\
+          43&110.7212&44&110.7891\\
+          45&111.1750&46&111.2286\\
+          47&112.2869&48&109.8453\\
+          49&110.8396&50&111.2611\\
+          51&112.0811&52&111.7093\\
+          53&111.4302&54&110.3345\\
+          55&112.2810&56&112.3754\\
+          57&110.5903&58&111.9212\\
+          59&111.3358&60&109.1929\\
+          \hline
+        \end{tabular}
+      }
+    \end{center}
+  \end{table}
+  \newpage
+  次に、表\ref{tab:測定結果１}をもとに作成したヒストグラムを図\ref{fig:結果分布}として示す。図\ref{fig:結果分布}の横軸は、表\ref{tab:測定結果１}の測定抵抗$R_1$より最大値$R_{max}$（$113.5877\si{\ohm}$）と最小値$R_{min}$（$109.1929\si{\ohm}$）の間に分布している抵抗値を１０等分したものである。縦軸は、横軸のそれぞれの階級ごとにどのくらい抵抗器があるかを示す。
+  \begin{figure}[H]
+    \begin{center}
+      \includegraphics[keepaspectratio,scale=1]{figure/report1.pdf}
+      \caption{抵抗器$R_1$の測定結果の分布}\label{fig:結果分布}
+    \end{center}
+  \end{figure}
+  最後に、実験標準偏差$s_1$を関数電卓から求めた値と、図\ref{fig:結果分布}のヒストグラムから計算したときの実験標準偏差$s_2$の値を比較する。実験標準偏差$s$を求める式は、
+  \begin{equation}
+    s=\sqrt{\dfrac{1}{n-1} \sum_{i=1}^{n} (x_i-\bar{x})^2}\label{実験標準偏差１}
+  \end{equation}
+  である。これを関数電卓を用いて計算を行った結果、
+  \begin{equation}
+    s_1 = 0.84384\:\si{\ohm}
+  \end{equation}
+  であった。次に、図\ref{fig:結果分布}のヒストグラムから実験標準偏差$s_2$の近似値を求める。実験標準偏差$s_2$を求める式は、
+  \begin{equation}
+    s=\sqrt{\dfrac{1}{n-1} \sum_{j=1}^{10} I_j (\sigma_j - \bar{x})^2}\label{実験標準偏差２}
+  \end{equation}
+  である。ここで$j=1,2,3,...10$、$\bar{x}$は図\ref{tab:測定結果１}の測定抵抗$R_1$の平均値、$I_j$はある$j$区間目の測定個数$n$、$\sigma_j$はある$j$区間においての平均値、総和記号の上が10なのは、図\ref{fig:結果分布}のように今回の実験データを10等分にしためである。式\ref{実験標準偏差２}の式を関数電卓のSTAT機能を用いて計算すると、
+  \begin{equation}
+    s_2 = 0.84339\:\si{\ohm}
+  \end{equation}
+  である。$s_1$と$s_2$の計算結果を比較すると、$s_2$は$s_1$に比べて$0.0046\:\si{\ohm}$ずれていることがわかる。このことから、ヒストグラムの度数から求める場合でも、有効数字3桁にするように数字を丸めれば同じ値になるため、近似値として求められていることが分かる。
+  \subsection{1 次式の最小2 乗法}
+  $\S3.2$の実験機器にあるように、今回実験で使用した全ての抵抗器$R$の許容差は$\pm 5\%$である。そのため、表\ref{tab:許容差と測定値}の測定値$R$が許容範囲$R_{ran}$内なら許容されることになる。
+  \begin{table}[H]
+  \caption{実験で使用した抵抗器の許容差とその範囲}\label{tab:許容差と測定値}
+  \begin{center}
+      \begin{tabular}{|c|c|c|c|c|}
+        \hline
+          &抵抗器$\;:\;R / \si{\ohm}$ & 許容差 & 許容範囲$\;:\;R_{ran}/ \si{\ohm}$ & 測定値$\;:\;R\prime/ \si{\ohm}$\\
+        \hline
+          1&110&$\pm 5\%$&104.5～115.5&112.305\\
+          2&120&$\pm 5\%$&114～126&120.748\\
+          2&130&$\pm 5\%$&123.5～136.5&130.382\\
+          4&150&$\pm 5\%$&142.5～157.5&151.602\\
+          5&160&$\pm 5\%$&152～168&163.409\\
+          6&180&$\pm 5\%$&171～189&184.345\\
+        \hline
+      \end{tabular}
+  \end{center}
+  \end{table}
+  表\ref{tab:許容差と測定値}の許容範囲$R_{ran}$と測定値$R\prime$より、どの測定値$R\prime$においても許容範囲内にあることが読み取れる。そのため、今回測定した値は抵抗器本来の値からわずかに離れているようなもの（$R_5R_6$等）があるが、許されると考えられる。\\
+  次に、横軸にカラーコードの読み値、縦軸にディジタルマルチメータから読み取った測定結果をプロットしたものを図\ref{fig:1次式グラフ}として示す。また、式\ref{a}と\ref{b}より、傾き$a$と切片$b$を関数電卓を用いて計算を行った結果、
+
+  \begin{equation}
+    a=1.0427 \;\; , \;\; b=-3.9178\label{最後}
+  \end{equation}
+
+  となった。図\ref{fig:1次式グラフ}より読み取れることとして、目見当で引いた線と最小2乗法の線を比較するとプロットした点がほぼ一直線にあるため、目見当引くことができる範囲が狭くなるため、最小2乗法から求めて引いた線とほぼ一致している事が読み取れる。
+  \newpage
+  \begin{figure}[H]
+    \rotatebox{90}{
+      \centering
+      \includegraphics[keepaspectratio,scale=0.65]{figure/report2.pdf}
+    }
+    \caption{目見当と計算による最小2乗法の関係図}\label{fig:1次式グラフ}
+  \end{figure}
+
+%\section{考察}
+\newpage
+\section{まとめ}
+  レポートをまとめることで、1次式の最小2乗法と実験標準偏差の誤差処理を適応することができるようになったため、今回の目的は達成したと言える。
+\section{参考文献}
+\begin{itemize}
+  \item [][1]馬場 敬介、素晴らしく実力が付くと評判の統計学 キャンパス・ゼミ、マセマ出版社、平成28年12月23日、153~155・162・164・165
+  \item [][2]宮川 雅已、統計技法、共立出版株式会社、1998年4月25日、43・66
+  \item [][3]三宅章彦、基礎数学シリーズ7 統計学、株式会社培風館、1997年1月27日、7・47・50
+\end{itemize}
+\end{document}
