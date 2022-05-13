@@ -1,0 +1,511 @@
+\documentclass[10pt,a4paper]{jsarticle}
+
+\usepackage{amsmath,amssymb}
+\usepackage[dvipdfmx]{graphicx}
+\usepackage{float}
+\usepackage{tikz}
+\usepackage{circuitikz}
+\usepackage{siunitx}
+\usepackage{at}
+\usepackage{comment}
+\usepackage[hang,small,bf]{caption}
+\usepackage[subrefformat=parens]{subcaption}
+
+\captionsetup{compatibility=false}
+
+\usetikzlibrary{intersections,calc,arrows.meta}
+
+\numberwithin{equation}{section}
+\numberwithin{figure}{section}
+\numberwithin{table}{section}
+
+\begin{document}
+\section{実験の目的}
+今回の実験は、以下のことを目的とする。
+  \begin{itemize}
+    \item [(1)] コンデンサ($C$)と抵抗($R$)を直列に接続した交流回路の電源電圧及び抵抗両端の電圧を測定し、位相角（位相差）等を求め、電圧等がベクトルであることを理解する。
+    \item [(2)] 回路中の１つの値（例えば$R$）が変化するとベクトルの大きさと方向が変化する。ベクトルの先が変わる様子を連続的に書き、交流回路の特性を学ぶ。
+  \end{itemize}
+
+\section{原理}
+  図\ref{fig:RC直列交流回路}の交流回路において、電源電圧の大きさ（実効値、以下同じ）を$V$、抵抗$R$およびコンデンサ$C$の端子電圧の大きさを$V_R$、$V_C$、回路電流の大きさを$I$とするとき、以下の関係式が成立する。ここで、ベクトル量には量記号の上に($\rightarrow$)をつける。$\omega$は角周波数、$f$は周波数である。GNDは、電位の基準（零電位）で、電圧を測る基準である。
+
+  \begin{equation}
+    \begin{split}
+        &\vec{V}=\vec{V_R} + \vec{V_C}
+    \end{split}
+  \end{equation}
+  \begin{equation}
+    \begin{split}
+        &\vec{V_R}=R\vec{I}, \quad\quad V_R=RI
+    \end{split}
+  \end{equation}
+  \begin{equation}
+    \begin{split}
+        &V=\sqrt{V^2_R + V^2_C}=\sqrt{R^2 + \left( \dfrac{1}{\omega C} \right)^2}, \omega=2 \pi f
+    \end{split}
+  \end{equation}
+  \begin{equation}
+    \begin{split}
+        &V^2=V^2_R + V^2_C
+    \end{split}
+  \end{equation}
+  \begin{equation}
+    \begin{split}
+        &\theta= \tan^{-1}\dfrac{V_C}{V_R}=\cos^{-1}\dfrac{V_R}{V} 
+    \end{split}
+  \end{equation}
+  
+  %図2.1: RC直列交流回路（実験回路接続図）
+  \begin{figure}[H]
+    \begin{center}
+      \begin{circuitikz}
+        \draw(0,0)
+          to [vsourcesin] (0,6)
+          to [short](2,6)
+          to [short] (2,3.5);
+        \draw(2,3) circle (0.5);
+        \draw (2,2.5)
+          to [short] (2,0)
+          to[short] (0,0);
+        \draw (2,6)
+          to[short] (5,6)
+          to[C](5,3)
+          to[european resistor](5,0)
+          to [short] (3.5,0);
+        \draw (2,0)
+          to[short](3.5,0)
+          to[short](3.5,1);
+        \draw (3.5,1.5) circle (0.5);
+        \draw (3.5,2)
+          to[short] (3.5,3)
+          to[short] (7,3)
+          to[short] (7,2);
+        \draw (7,1.5) circle (0.5);
+        \draw (7,1)
+          to[short] (7,0)
+          to[short] (5,0);
+        \draw (5,6)
+          to[short] (9,6)
+          to[short] (9,2);
+        \draw(9,1.5) circle (0.5);
+        \draw(9,1)
+          to[short] (9,0)
+          to[short](7,0);
+        \draw (0,0) to (0,-0.1) node[cground]{};
+        \draw (2,3.2) node[anchor=north]{V};
+        \draw (3.5,1.7) node[anchor=north]{${V}_{R}$};
+        \draw (5.7,4.8) node[anchor=north]{$C$};
+        \draw (5.7,1.8) node[anchor=north]{$R$};
+        \draw (2.5,6) node[anchor=north]{I};
+        \draw (10,1) node[anchor=north]{OSC.CH1};
+        \draw (8,1) node[anchor=north]{OSC.CH2};
+        \draw [->,>=stealth,very thick] (2,6)--(3.5,6);
+        \fill [black] (0,0) circle (0.06);
+        \fill [black] (2,0) circle (0.06);
+        \fill [black] (3.5,0) circle (0.06);
+        \fill [black] (5,0) circle (0.06);
+        \fill [black] (7,0) circle (0.06);
+        \fill [black] (2,6) circle (0.06);
+        \fill [black] (5,6) circle (0.06);
+        \fill [black] (5,3) circle (0.06);
+        \draw (6.7,1.3)--(7.1,1.7)--(7.1,1.4)--(7.35,1.6);
+        \draw (8.7,1.3)--(9.1,1.7)--(9.1,1.4)--(9.35,1.6);
+
+      \end{circuitikz}
+     \end{center}
+     \caption{RC直列交流回路（実験回路接続図）}\label{fig:RC直列交流回路}
+  \end{figure}
+
+  電流$I$を基準に描いたベクトル図を図2.2(a)に、電圧$V$を基準に書いたベクトルの三角形を図2.2(b)に示す。電流$I$は電圧$V$に対し位相が$\theta$だけ進んでいる（図2.2(a)）。電流$I$と電圧$V_R$は同相（同方向）である。
+  %図12.2: (a) 電流基準ベクトル図、(b)電圧基準ベクトルの三角形
+  \begin{figure}[H]
+      \centering
+        \begin{circuitikz}
+          %a
+          \draw [->,>=stealth,very thick](0,0)--(0,-3);
+          \draw [->,>=stealth,very thick](0,0)--(3,0);
+          \draw [->,>=stealth,very thick](0,0)--(3,-3);
+          \draw [dashed,semithick](0,-3)--(3,-3);
+          \draw [dashed,semithick](3,0)--(3,-3);
+          \draw [->,>=stealth,thick](3,0)--(4,0);
+          \draw (-0.3,-1.3) node[anchor=north]{$\vec{V_C}$};
+          \draw (1.6,0.6) node[anchor=north]{$\vec{V_R}$};
+          \draw (3.4,0.6) node[anchor=north]{$\vec{I}$};
+          \draw (1.3,-1.5) node[anchor=north]{$\vec{V}$};
+          \draw (1.2,-2) node[anchor=north]{大きさ$V$};
+          \draw (0.5,0) arc (0:-45:0.5);
+          \draw (0.6,-0.07) node[anchor=north]{$\theta$};
+          \draw (-1,1) node[anchor=north]{(a)};
+
+          %b
+          \draw [->,>=stealth,very thick] (6,-2.7)--(9,0);
+          \draw [->,>=stealth,very thick] (6,-2.7)--(11,-2.7);
+          \draw [<-,>=stealth,very thick] (11,-2.7)--(9,0);
+          \draw (10.5,-1) node[anchor=north]{$\vec{V_C}$};
+          \draw (7,-1) node[anchor=north]{$\vec{V_R}$};
+          \draw (8.3,-2.8) node[anchor=north]{$\vec{V}$};
+          \draw (6.5,-2.7) arc (0:45:0.5);
+          \draw (6.7,-2.2) node[anchor=north]{$\theta$};
+          \draw (6.5,1) node[anchor=north]{(b)};
+
+        \end{circuitikz}
+    \caption[margin=100pt]{(a) 電流基準ベクトル図、(b)電圧基準ベクトルの三角形}\label{fig:原理のベクトル２}
+  \end{figure}
+
+  電源電圧の大きさ$V$およびコンデンサの静電容量$C$を一定にして、抵抗$R$の値を変化させると、抵抗$R_1$,$R_2$,$R_3$$\cdot\cdot\cdot$に対し、ベクトル$\vec{V_R}$は図2.3(a)のように変化する。図2.3(a)に示す各点$P_1$,$P_2$,$P_3$$\cdot\cdot\cdot$は抵抗値の変化に対応して移動する。各点$P_1$,$P_2$,$P_3$$\cdot\cdot\cdot$の軌跡は半円になる。半円の直径は$V$である。このとき、電流ベクトル$\vec{I}$のベクトル軌跡も、図2.3(b)のような半円になる。半円の直径は$\omega CV$である。点$P_0$は$R=0$のときである。このとき、位相角$\theta=90^\circ$となる。
+  \begin{figure}[H]
+    \begin{center}
+      \begin{circuitikz}
+        %a
+        \draw[->,>=stealth, very thick] (0,0)--(4,0);
+        \draw [dashed,semithick] (0,0) arc (180:0:2);
+        \draw[->,>=stealth, very thick] (0,0)--(0.3,1);%P1
+        \draw[->,>=stealth, very thick] (0,0)--(1,1.7);%P2
+        \draw[->,>=stealth, very thick] (0,0)--(2,2);%P3
+        \draw (0.3,1)--(4,0);
+        \draw (1,1.7)--(4,0);
+        \draw (2,2)--(4,0);
+        \draw [->,>=stealth,thin] (-0.3,0.6)--(0.18,0.5);
+        \draw [->,>=stealth,thin] (0.18,1.5)--(0.7,1.4);
+        \draw [->,>=stealth,thin] (1,2.1)--(1.7,1.7);
+        \draw [->,>=stealth,semithick] (3,2.2) arc (70:40:2.3);
+        \draw (0,4) node[anchor=north]{(a)};
+        %capital-set
+        \scalebox{0.7}{
+        \draw (-0.9,0.9) node{$\vec{V_{R1}}$};
+        \draw (-0.3,2.2) node{$\vec{V_{R2}}$};
+        \draw (1.1,3.2) node{$\vec{V_{R3}}$};
+        \draw (0,1.4) node{$P_{1}$};
+        \draw (1,2.6) node{$P_{2}$};
+        \draw (2.8,3.2) node{$P_{3}$};
+        \draw (5,3.4) node{R増加};
+        \draw (2.8,-0.5) node{$\vec{V}$};
+        }
+
+        %b
+        \draw (6,4) node[anchor=north]{(b)};
+        \draw [->,>=stealth,very thick] (7,-1)--(7,3);
+        \draw [<->,>=stealth,semithick] (6.7,-1)--(6.7,3);
+        \draw [dashed, semithick] (7,-1) arc (-90:90:2);
+        \draw [->,>=stealth,very thick] (7,-1)--(7,3);
+        \draw [->,>=stealth,very thick] (7,-1)--(9,1);
+        \draw [->,>=stealth,very thick] (7,-1)--(8.8,1.9);
+        \draw [->,>=stealth,very thick] (7,-1)--(8.4,2.6);
+        \scalebox{0.6}{
+          \draw (13,2.7) node{$\vec{I_1}$};
+          \draw (13.7,2.3) node{$\vec{I_2}$};
+          \draw (14.4,1.8) node{$\vec{I_3}$};
+          \draw (11.7,5.3) node{$P_0$};
+          \draw (14.2,4.7) node{$P_1$};
+          \draw (15.2,3.3) node{$P_2$};
+          \draw (15.5,1.6) node{$P_3$};
+          \draw (10.4,1.6) node{$\omega CV$};
+          }
+
+      \end{circuitikz}
+    \end{center}
+    \caption{(a)$V_R$のベクトル軌跡（$R$を変化）、(b)$I$のベクトル軌跡（$R$を変化）}\label{fig:原理のベクトル３}
+  \end{figure}
+
+\section{実験}
+  今回の実験では、図\ref{fig:RC直列交流回路}の回路において２つの実験（実験１と実験２）を行い、測定した。
+\subsection{実験方法}
+  \subsubsection{実験1}
+    \begin{itemize}
+      \item [(1)]図\ref{fig:RC直列交流回路}のように配置、配線をした。（この時、アース側の配線はすべて黒色にした。）
+      \item [(2)]ディジタルマルチメータとオシロスコープを使い交流電源の電圧（実効値）を$\SI{2.0}{\volt}$、周波数$f$を$\SI{1}{\kilo\hertz}$になるように関数発生器を調整した。
+      \item [(3)]次に、可変コンデンサ$C$を$\SI{0.11}{\micro\farad}$に固定し、抵抗$R$を表\ref{tab:実験１の表の例}のように変化させて、抵抗の端子間電圧$V_R$を測定、記録した。ただし、抵抗$R$を変化させたときに電圧$V$が$\SI{2.0}{\volt}$になっているかを確認し、$\SI{2.0}{\volt}$でない場合は関数発生器の「AMPLITUDE」を調整した。
+    \end{itemize}
+    \begin{table}[H]
+      \caption{設定する抵抗値と対応する電力ラベル}\label{tab:実験１の表の例}
+        \centering
+        \scalebox{1}{
+          \begin{tabular}{|c||c|c|c|c|c|c|c|c|c|c|c|c|}
+            \hline
+              $R$ $\si{\kilo\ohm}$&0.0&0.2&0.4&0.6&1.0&1.4&1.8&2.4&3.2&4.0&5.0&8.0 \\
+            \hline
+              P&$P_0$&$P_1$&$P_2$&$P_3$&$P_4$&$P_5$&$P_6$&$P_7$&$P_8$&$P_9$&$P_{10}$&$P_{11}$\\
+            \hline
+          \end{tabular}
+      }
+    \end{table}
+  \subsubsection{実験2}
+    \begin{itemize}
+      \item [(1)]実験１の実験を行った後に、電圧$V$、周波数$f$、コンデンサ容量$C$のそれぞれの値を変えずに、抵抗$R$が$\SI{1}{\kilo\ohm}$のときの、交流電源の電圧$V$、抵抗の端子間電圧$V_R$の波形をオシロスコープのCH1およびCH2で同時に測定した。
+      \item [(2)]次に、オシロスコープのMEASURE機能を使ってCH1の最大値とCH2の最大値とCH1の周期を表示させて、それをUSBに保存した。次に、CURSOR機能を使って波形の周期$T$と位相（CH1とCH2）の時間差$t$を表示させて、それぞれをUSBに保存した。
+    \end{itemize}
+
+\subsection{実験機器}
+  今回の実験で使用した機器を以下の表\ref{tab:使用機器}に示す。
+  \begin{table}[H]
+  \caption{使用機器}\label{tab:使用機器}
+  \begin{center}
+    \scalebox{1}{
+      \begin{tabular}{|cccc|}
+        \hline
+          使用機器&規格&物品管理番号&製造会社\\
+        \hline
+        ディジタルストレージオシロスコープ&TBS1022&21/25&Tektronix\\
+        ダイヤル式可変コンデンサ&YVC-4B&L96-000812&山菱電機\\
+        ダイヤル式可変抵抗器&RD-56A&L06-000268&SHIMADZU\\
+        関数発生器&AG-205&24/25&TEXIO\\
+        ディジタルマルチメータ&PC700&&SANWA\\
+        \hline
+      \end{tabular}
+  }
+  \end{center}
+  \end{table}
+  
+\section{実験結果}
+  まず最初に、実験方法にあるように実験２のオシロスコープ画面を図\ref{fig:osc_result_figure}として示す。
+  \begin{figure}[H]
+      \centering
+        \includegraphics[keepaspectratio,scale=0.35]{figure/osc_result/osc_result.pdf}
+        \caption{抵抗の端子間電圧$V_R$と交流電源の電圧$V$、周期$T$と位相差$t$}\label{fig:osc_result_figure}
+  \end{figure}
+
+
+  次に、今回の実験の結果を表\ref{tab:実験１の結果}と表\ref{tab:実験２の結果}、図4.4と4.5に示す。表\ref{tab:実験１の結果}では実験１の測定結果を各それぞれのポイントごとに、抵抗の端子間電圧$V_R$とインピーダンス$Z$、電流$I$、ベクトルの角度$\theta$を表に示す。
+  ここでインピーダンス$Z$は、式(2.3)より求める。また、電流$I$は表\ref{tab:実験１の結果}にもあるように、式(2.2)と(4.2)から求めることができて、角度$\theta$は式(2.5)から求めることができる。
+  \begin{table}[H]
+  \caption{実験１の結果（電圧$V=\SI{2.0}{\volt}$、周波数$f=\SI{1.0}{\kilo\hertz}$、$C=\SI{0.11}{\micro\farad}）$}\label{tab:実験１の結果}
+  \begin{center}
+    \scalebox{1}{
+      \begin{tabular}{|c|c|c|c|c|c|c|}
+        \hline
+        P&$V_R$ /V& $Z$ / $\si{\kilo\ohm}$&\multicolumn{3}{c|}{$I$ / $\si{\milli\ampere}$}&$\theta$ / $^\circ$\\
+        \cline{4-6}
+        &        &                        &式(2.2)の値&式(2.3)の値&平均値                  &                   \\
+        \hline
+          $P_1$   &0&1.45&0&1.38&1.38&0\\
+          $P_2$   &0.275&1.46&1.375&1.37&1.37&82.1\\
+          $P_3$   &0.538&1.50&1.345&1.33&1.34&74.4\\
+          $P_4$   &0.772&1.57&1.287&1.28&1.28&67.3\\
+          $P_5$   &1.143&1.76&1.143&1.14&1.14&55.2\\
+          $P_6$   &1.401&2.01&1.001&0.99&1.00&45.5\\
+          $P_7$   &1.564&2.31&0.869&0.87&0.87&38.6\\
+          $P_8$   &1.721&2.80&0.717&0.71&0.72&30.6\\
+          $P_9$   &1.823&3.51&0.570&0.57&0.57&24.3\\
+          $P_{10}$  &1.884&4.25&0.471&0.47&0.47&19.6\\
+          $P_{11}$&1.921&5.21&0.384&0.38&0.38&16.2\\
+          $P_{12}$&1.966&8.13&0.246&0.25&0.25&10.6\\
+        \hline
+      \end{tabular}
+  }
+  \end{center}
+  \end{table}
+
+  次に、実験２の実験結果である表\ref{tab:実験２の結果}では、$V$の最大値と$V_R$の最大値と周期$T$と時間差$t$はそれぞれ図\ref{fig:osc_result_figure}にあるオシロスコープの画面の結果である。また、電流は$I$と位相差$\theta$は指導書を参考に以下の式から求めることができる。
+
+  \begin{equation}
+    \begin{split}
+        &I=\dfrac{\left(\dfrac{V_{Rmax}}{\sqrt{2}}\right)}{R}
+    \end{split}
+  \end{equation}
+  \begin{equation}
+    \begin{split}
+        &\theta=360 \times \dfrac{t}{T}
+    \end{split}
+  \end{equation}
+  \\
+  \begin{table}[H]
+  \caption{実験結果2の結果（電圧$V=\SI{2.0}{\volt}$、周波数$f=\SI{1.0}{\kilo\hertz}$、$C=\SI{0.11}{\micro\farad}）$}\label{tab:実験２の結果}
+  \begin{center}
+    \scalebox{1}{
+      \begin{tabular}{|c|c|c|c|c|c|c|}
+        \hline
+        抵抗&$V$の最大値&$V_R$の最大値&周期&時間差&電流&位相差\\
+        $R$ / $\si{\kilo\ohm}$& $V_{max}$ / $V$ &$V_{Rmax}$ / $V$& $T$ / $\si{\micro\second}$ & $t$ / $\si{\micro\second}$ & $I$ / $\si{\milli\ampere}$ & $\theta$ / $^\circ$\\
+        \hline
+        \hline
+        1&2.88&1.64&993&160&1.16&58.0\\
+        \hline
+      \end{tabular}
+  }
+  \end{center}
+  \end{table}
+
+  \newpage
+  次に、図\ref{fig:実験結果のV_Rのベクトル軌跡}で表\ref{tab:実験１の結果}の抵抗の端子間電圧$V_R$の値と$\theta$の値を用いたベクトル軌跡を示す。
+  \begin{figure}[H]
+    \begin{center}
+      \begin{circuitikz}
+        \draw [->,>=stealth,very thick](0,0)--(10,0);
+        
+        \draw [->,>=stealth,very thick,rotate around={82.1:(0,0)}](0,0)--(0.275*5,0);
+        \draw (-0.3,1.5) node[anchor=north] {$P_2$};
+        \draw (-0.8,1.6)node[anchor=north] {$\vec{V_{R2}}$};
+
+        \draw [->,>=stealth,very thick,rotate around={74.4:(0,0)}](0,0)--(0.538*5,0);
+        \draw (0.5,3) node[anchor=north] {$P_3$};
+        \draw (0,3.1)node[anchor=north] {$\vec{V_{R3}}$};
+
+        \draw [->,>=stealth,very thick,rotate around={67.3:(0,0)}](0,0)--(0.772*5,0);
+        \draw (1,4) node[anchor=north] {$P_4$};
+        \draw (0.5,4.1)node[anchor=north] {$\vec{V_{R4}}$};
+
+        \draw [->,>=stealth,very thick,rotate around={55.2:(0,0)}](0,0)--(1.143*5,0);
+        \draw (2.8,5)node[anchor=north] {$P_5$};
+        \draw (2.3,5.1)node[anchor=north] {$\vec{V_{R5}}$};
+        
+        \draw [->,>=stealth,very thick,rotate around={45.5:(0,0)}](0,0)--(1.401*5,0);
+        \draw (4.8,5.5)node[anchor=north] {$P_6$};
+        \draw (4.3,5.6)node[anchor=north] {$\vec{V_{R6}}$};
+        
+        \draw [->,>=stealth,very thick,rotate around={38.6:(0,0)}](0,0)--(1.564*5,0);
+        \draw (5.9,5.3)node[anchor=north] {$P_7$};
+        \draw (6.4,5.4)node[anchor=north] {$\vec{V_{R7}}$};        
+        
+        \draw [->,>=stealth,very thick,rotate around={30.6:(0,0)}](0,0)--(1.721*5,0);
+        \draw (7.3,5)node[anchor=north] {$P_8$};
+        \draw (7.8,5.1)node[anchor=north] {$\vec{V_{R8}}$};
+
+        \draw [->,>=stealth,very thick,rotate around={24.3:(0,0)}](0,0)--(1.823*5,0);
+        \draw (8.3,4.3)node[anchor=north] {$P_{9}$};
+        \draw (8.8,4.4)node[anchor=north] {$\vec{V_{R9}}$};
+        
+        \draw [->,>=stealth,very thick,rotate around={19.6:(0,0)}](0,0)--(1.884*5,0);
+        \draw (9.2,3.5)node[anchor=north] {$P_{10}$};
+        \draw (9.9,3.6)node[anchor=north] {$\vec{V_{R10}}$};
+        
+        \draw [->,>=stealth,very thick,rotate around={16.2:(0,0)}](0,0)--(1.921*5,0);
+        \draw (9.5,3)node[anchor=north] {$P_{11}$};
+        \draw (10.2,3.1)node[anchor=north] {$\vec{V_{R11}}$};        
+
+        \draw [->,>=stealth,very thick,rotate around={10.6:(0,0)}](0,0)--(1.966*5,0);
+        \draw (10,2.1)node[anchor=north] {$P_{12}$};
+        \draw (10.7,2.2)node[anchor=north] {$\vec{V_{R12}}$};
+
+        \draw [->,>=stealth,semithick] (7,6) arc (70:50:4);
+        \draw (7.8,6.4)node[anchor=north] {$R$増加};
+        \draw (5,-0.5)node[anchor=north] {$\vec{V}$};
+        \draw (10.5,0)node[anchor=north] {$\SI{2}{\volt}$};
+        \draw [dashed,semithick](0,0) arc (180:0:5);
+      \end{circuitikz}
+    \end{center}
+    \caption{実験結果の$V_R$のベクトル軌跡}\label{fig:実験結果のV_Rのベクトル軌跡}
+  \end{figure}
+
+  次に、図\ref{fig:実験結果のIのベクトル軌跡}で表\ref{tab:実験１の結果}の抵抗の端子間電圧$I$の値と$\theta$の値を用いたベクトル軌跡を示す。
+  \begin{figure}[H]
+    \begin{center}
+      \begin{circuitikz}
+        \draw [->,>=stealth,very thick,rotate around={90:(0,0)}](0,0)--(1.38*5,0);
+        \draw (0,1.38*5.4)node[anchor=north] {$P_1$};
+        \draw (0.1,1.38*5.7) node [anchor=north] {$\vec{I}_1$};
+
+        \draw [->,>=stealth,very thick,rotate around={82.1:(0,0)}](0,0)--(1.37*5,0);
+        \draw (1,1.37*5.4)node[anchor=north] {$P_2$};
+        \draw (1,1.37*5.7) node [anchor=north] {$\vec{I}_2$};
+        
+        \draw [->,>=stealth,very thick,rotate around={74.4:(0,0)}](0,0)--(1.34*5,0);
+        \draw (1.8,1.34*5.3)node[anchor=north] {$P_3$};
+        \draw (1.8,1.34*5.6) node [anchor=north] {$\vec{I}_3$};
+
+        \draw [->,>=stealth,very thick,rotate around={67.3:(0,0)}](0,0)--(1.28*5,0);
+        \draw (2.7,1.28*5.0)node[anchor=north] {$P_4$};
+        \draw (2.7,1.28*5.3) node [anchor=north] {$\vec{I}_4$};
+
+        \draw [->,>=stealth,very thick,rotate around={55.2:(0,0)}](0,0)--(1.14*5,0);
+        \draw (3.5,1.14*4.5)node[anchor=north] {$P_5$};
+        \draw (3.5,1.14*5) node [anchor=north] {$\vec{I}_5$};
+
+        \draw [->,>=stealth,very thick,rotate around={45.5:(0,0)}](0,0)--(1.00*5,0);
+        \draw (3.8,1.00*4)node[anchor=north] {$P_6$};
+        \draw (4.2,1.00*4) node [anchor=north] {$\vec{I}_6$};
+
+        \draw [->,>=stealth,very thick,rotate around={38.6:(0,0)}](0,0)--(0.87*5,0);
+        \draw (3.6,0.87*3.5)node[anchor=north] {$P_7$};
+        \draw (3.9,0.87*3.8) node [anchor=north] {$\vec{I}_7$};
+
+        \draw [->,>=stealth,very thick,rotate around={30.6:(0,0)}](0,0)--(0.72*5,0);
+        \draw (3.4,0.72*3)node[anchor=north] {$P_8$};
+        \draw (3.7,0.72*3.3) node [anchor=north] {$\vec{I}_8$};
+
+        \draw [->,>=stealth,very thick,rotate around={24.3:(0,0)}](0,0)--(0.57*5,0);
+        \draw (2.9,0.57*2.6)node[anchor=north] {$P_9$};
+        \draw (3.3,0.57*2.9) node [anchor=north] {$\vec{I}_9$};
+
+        \draw [->,>=stealth,very thick,rotate around={19.6:(0,0)}](0,0)--(0.47*5,0);
+        \draw (2.6,0.47*2.2)node[anchor=north] {$P_{10}$};
+        \draw (3,0.47*2.4) node [anchor=north] {$\vec{I}_{10}$};
+
+        \draw [->,>=stealth,very thick,rotate around={16.2:(0,0)}](0,0)--(0.38*5,0);
+        \draw (2.1,0.38*1.8)node[anchor=north] {$P_{11}$};
+        \draw (2.6,0.38*1.7) node [anchor=north] {$\vec{I}_{11}$};
+
+        \draw [->,>=stealth,very thick,rotate around={10.6:(0,0)}](0,0)--(0.25*5,0);
+        \draw (1.5,0.25*1.6)node[anchor=north] {$P_{12}$};
+        \draw (2,0.25*1) node [anchor=north] {$\vec{I}_{12}$};
+
+        \draw [->,>=stealth,very thick](-0.5,0)--(-0.5,1.38*5);
+        \draw (-1.2,1.00*4) node [anchor=north] {$\omega CV$};
+        \draw (-1.2,1.38*5.2) node[anchor=north] {$\SI{1.38}{\milli\ampere}$};
+        \draw [dashed,semithick](0,0) arc (-90:90:1.38*2.5);
+      \end{circuitikz}
+    \end{center}
+    \caption{実験結果の$I$のベクトル軌跡}\label{fig:実験結果のIのベクトル軌跡}
+  \end{figure}
+  
+\section{考察}
+  \begin{itemize}
+    \item [(1)]電圧、電流のベクトル軌跡は、図2.3(a)、図2.3(b)のように半円になるが、実際はどうなったか？描くのに苦労した点はどこか。\\図4.2と4.3のように、それぞれのポイントごとの$V_R$と$I$のベクトル終点が半円の点線の円周部分にくっついていることが読み取ることができる。また、原理の図2.2(a)(b)と比べても同じようなベクトル軌跡を描かれていることから、今回の実験は成功したと考えられる。
+    \item [(2)]抵抗$R$の値を０から$\SI{4}{\kilo\ohm}$まで変えたとき、インピーダンス$Z$のベクトル軌跡はどうなるか？\\
+    表\ref{tab:実験１の結果}より、今回の測定回路のインピーダンス$Z$のベクトル軌跡を示す。ここでの$P_2$～$P_{10}$は表\ref{tab:実験１の結果}の$P_2$～$P_{10}$と一致している。
+    \begin{figure}[H]
+      \begin{center}
+        \begin{circuitikz}
+          \draw [->,>=stealth,thin](0,-3)--(0,3);
+          \draw [->,>=stealth,thin](-1,0)--(5,0);
+
+          \draw [->,>=stealth,semithick,rotate around={-82.1:(0,0)}](0,0)--(1.46,0);
+          \draw [->,>=stealth,semithick,rotate around={-74.4:(0,0)}](0,0)--(1.5,0);
+          \draw [->,>=stealth,semithick,rotate around={-67.3:(0,0)}](0,0)--(1.57,0);
+          \draw [->,>=stealth,semithick,rotate around={-55.2:(0,0)}](0,0)--(1.76,0);
+          \draw [->,>=stealth,semithick,rotate around={-45.5:(0,0)}](0,0)--(2.01,0);
+          \draw [->,>=stealth,semithick,rotate around={-38.6:(0,0)}](0,0)--(2.31,0);
+          \draw [->,>=stealth,semithick,rotate around={-30.6:(0,0)}](0,0)--(2.8,0);
+          \draw [->,>=stealth,semithick,rotate around={-24.3:(0,0)}](0,0)--(3.51,0);
+          \draw [->,>=stealth,semithick,rotate around={-19.6:(0,0)}](0,0)--(4.25,0);
+          
+          \draw [->,>=stealth,very thick](0,0)--(4,0);
+          \draw [->,>=stealth,very thick](0,0)--(0,-1.44);
+
+          \draw [dashed,thin](0,-1.44)--(4,-1.44);
+          \draw [dashed,thin](4,0)--(4,-1.44);
+
+          \draw (0,4) node[anchor=north]{虚軸};
+          \draw (0,3.5) node[anchor=north]{(Im)};
+          \draw (6,0.25) node[anchor=north]{実軸};
+          \draw (6,-0.25) node[anchor=north]{(Re)};
+
+          \draw (2,0.5) node[anchor=north]{$R$};
+          \draw (-0.7,-0.5) node[anchor=north]{$\dfrac{1}{\omega C}$};
+
+          \draw (-0.25,-0.05) node[anchor=north]{0};
+
+          \scalebox{0.5}{
+            \draw (0.45,-3) node[anchor=north]{$P_2$};
+            \draw (0.85,-3) node[anchor=north]{$P_3$};
+            \draw (1.4,-3) node[anchor=north]{$P_4$};
+            \draw (2.2,-3) node[anchor=north]{$P_5$};
+            \draw (2.8,-3) node[anchor=north]{$P_6$};
+            \draw (3.7,-3) node[anchor=north]{$P_7$};
+            \draw (4.8,-3) node[anchor=north]{$P_8$};
+            \draw (6.4,-3) node[anchor=north]{$P_9$};
+            \draw (8.2,-3) node[anchor=north]{$P_{10}$};
+
+
+          }
+        \end{circuitikz}
+      \end{center}
+      \caption{RC回路のインピーダンス$Z$の複素数表示}\label{fig:RC_Z}
+    \end{figure}
+    \item [(3)]表4.1と表4.2の電流$I$、位相角$\theta$を比較、検討する。\\最初に、表4.1の電流$I$、位相角$\theta$を比較し検討する。表4.1にある電流は平均値で比較する。また、$P_1$$P_2$$P_3$$\cdot\cdot\cdot$と増えるとき、抵抗$R$の値を増やしていってた。このようなことから、表4.1の値から抵抗$R$が増えるとそれに反比例して電流$I$が減ることが読み取れる。
+  \end{itemize}
+
+\section{まとめ}
+  今回の実験を通して、電圧等がベクトルであることを理解することができたので、目的を達成することができたと思います。しかし、指導書をあまり読まずに実験を行ったために実験を終えるのに時間がかかりすぎてしまった。このようなことから、次回以降から実験をする前に指導書をよく読んでから実験に取り組みたいと思います。
+
+\end{document}
